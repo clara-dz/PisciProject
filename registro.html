@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Crie sua conta</h1>
+    </header>
+
+    <form action="/registro" method="POST">
+
+        <section>
+                <h3>Nome de usuário</h3>
+                <input type="text" id="inputNome" placeholder="Nome" required>
+        </section>
+
+        <section>
+                <h3>E-mail</h3>
+                <input type="email" id="inputEmail" placeholder="E-mail" required>
+        </section>
+
+        <section>
+                <h3>Senha</h3>
+                <input type="password" id="inputSenha" placeholder="Senha" required>
+        </section>
+
+        <br>
+            <button type="submit">Continuar</button>
+    </form>
+
+    <p><a href="login.html">Já tenho uma conta</a></p><br>
+</body>
+</html>
