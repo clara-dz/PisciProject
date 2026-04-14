@@ -15,22 +15,27 @@
     <form action="/registro" method="POST">
 
         <section>
-                <h3>Nome de usuário</h3>
-                <input type="text" id="inputNome" placeholder="Nome" required>
-        </section>
-
-        <section>
-                <h3>E-mail</h3>
-                <input type="email" id="inputEmail" placeholder="E-mail" required>
-        </section>
-
-        <section>
-                <h3>Senha</h3>
-                <input type="password" id="inputSenha" placeholder="Senha" required>
+            <label for="inputNome">Nome de usuário</label>
+            <input type="text" id="inputNome" name="nome" placeholder="Nome" required>
         </section>
 
         <br>
-            <button type="submit">Continuar</button>
+
+        <section>
+            <label for="inputEmail">E-mail</label>
+            <input type="email" id="inputEmail" name="email" placeholder="E-mail" required>
+        </section>
+
+        <br>
+
+        <section>
+            <label for="inputSenha">Senha</label>
+            <input type="password" id="inputSenha" name="senha" placeholder="Senha" required>
+        </section>
+
+        <br>
+
+        <button type="submit">Continuar</button>
     </form>
 
     <p><a href="login.html">Já tenho uma conta</a></p><br>

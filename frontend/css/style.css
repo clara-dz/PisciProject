@@ -1,3 +1,36 @@
+
+h1{
+    color: rgb(3, 13, 48);
+    font-family: 'Times New Roman', Times, serif;
+}
+
+h2{
+    color: rgb(3, 13, 48);
+    font-family: 'Times New Roman', Times, serif;
+}
+
+h3{
+    color: rgb(3, 13, 48);
+    font-family: 'Times New Roman', Times, serif;
+}
+
+p{
+    color: rgb(3, 13, 48);
+    font-family: 'Times New Roman', Times, serif;
+}
+
+a{
+    color: rgb(3, 13, 48);
+    font-family: 'Times New Roman', Times, serif;
+}
+
+label {
+    color: rgb(3, 13, 48);
+    font-family: 'Times New Roman', Times, serif;
+    display: block; /* Faz o label ocupar a linha inteira, jogando o input para baixo */
+    margin-bottom: 5px; /* Dá um pequeno respiro entre o texto e a caixa de digitação */
+}
+
 .componentes {
     display: flex;
     flex-direction: column;
@@ -13,3 +46,4 @@
     cursor: pointer;
     width: auto;
 }
+
