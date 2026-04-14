@@ -62,7 +62,7 @@ Funcionalidades futuras incluem:
 ## 👩‍💻 Integrantes
 
 - Beatriz Yumi
-- Gabriel
+- Gabriel Tomás
 - João Victor Mendes
 - Maria Clara Almeida
 
