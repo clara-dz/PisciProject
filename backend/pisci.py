@@ -3,8 +3,8 @@ import os
 #from dotenv import load_dotenv (parte do banco de dados)
 
 
-from routes.pc_builder import pc_builder_bp
-from routes.user_route import user_bp
+from routes.api_pc_builder import pc_builder_bp
+from routes.api_user import user_bp
 
 #load_dotenv()
 

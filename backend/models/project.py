@@ -11,5 +11,16 @@ class Project:
         self.SSD = SSD
         self.Fonte = Fonte
         self.Compatibility = Compatibility
+
+    def to_dict(self):
+        """Transforma o objeto em dicionário para ser enviado como JSON"""
+        return {
+            "user_id": self.User_id,
+            "components": {
+                "cpu": self.CPU,
+                "motherboard": self.Mb,
+                "ram": self.MEM_RAM
+            }
+        }
     def __repr__(self):
         return f"<Project {self.User_id} ({self.Project_Name})>"
