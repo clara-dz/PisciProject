@@ -9,28 +9,26 @@
 
 <body>
     <header>
-        <h1>Entre no PISCIS</h1>
+        <h1>Entre no <a href="index.html" class="logo">PISCIS</a></h1>
     </header>
 
-    <form action="/login" method="POST">
-        <section>
-            <label for="email">E-mail</label>
-            <input type="email" id="email" name="email" placeholder="E-mail" required>
-        </section>
+    <main class="auth-page">
+        <form action="/login" method="POST">
+            <section>
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="E-mail" required>
+            </section>
 
-        <br>
+            <section>
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" placeholder="Senha" required>
+            </section>
+            
+            <button type="submit">Entrar</button>
+        </form>
 
-        <section>
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" name="senha" placeholder="Senha" required>
-        </section>
-
-        <br>
-        
-        <button type="submit">Entrar</button>
-    </form>
-
-    <p><a href="registro.html">Criar nova conta</a></p><br>
+        <p><a href="registro.html">Criar nova conta</a></p>
+    </main>
 
 </body>
 </html>

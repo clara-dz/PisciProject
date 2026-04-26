@@ -12,32 +12,29 @@
         <h1>Crie sua conta</h1>
     </header>
 
-    <form action="/registro" method="POST">
+    <main class="auth-page">
+        <form action="/registro" method="POST">
 
-        <section>
-            <label for="inputNome">Nome de usuário</label>
-            <input type="text" id="inputNome" name="nome" placeholder="Nome" required>
-        </section>
+            <section>
+                <label for="inputNome">Nome de usuário</label>
+                <input type="text" id="inputNome" name="nome" placeholder="Nome" required>
+            </section>
 
-        <br>
+            <section>
+                <label for="inputEmail">E-mail</label>
+                <input type="email" id="inputEmail" name="email" placeholder="E-mail" required>
+            </section>
 
-        <section>
-            <label for="inputEmail">E-mail</label>
-            <input type="email" id="inputEmail" name="email" placeholder="E-mail" required>
-        </section>
+            <section>
+                <label for="inputSenha">Senha</label>
+                <input type="password" id="inputSenha" name="senha" placeholder="Senha" required>
+            </section>
 
-        <br>
+            <button type="submit">Continuar</button>
+        </form>
 
-        <section>
-            <label for="inputSenha">Senha</label>
-            <input type="password" id="inputSenha" name="senha" placeholder="Senha" required>
-        </section>
+        <p><a href="login.html">Já tenho uma conta</a></p>
+    </main>
 
-        <br>
-
-        <button type="submit">Continuar</button>
-    </form>
-
-    <p><a href="login.html">Já tenho uma conta</a></p><br>
 </body>
 </html>

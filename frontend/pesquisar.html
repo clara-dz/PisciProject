@@ -8,17 +8,72 @@
 </head>
 <body>
     <header>
-        <h1><a href="index.html">PISCIS</a> 𓆝 𓆟 𓆞 𓆝 𓆟 </h1>
-        <p><a href="pesquisar.html">Pesquisar</a> 
-        | <a href="forum.html">Fórum</a>
-        | <a href="login.html">Fazer login</a></p>
+        <a href="index.html" class="logo">PISCIS</a>
+        <nav class="navbar">
+            <a href="pesquisar.html">Pesquisar</a> 
+            <a href="forum.html">Fórum</a> 
+            <a href="login.html">Login</a>
+        </nav>
     </header>
 
-    <main>
-        <form action="/pesquisar" method="get">
-            <input type="search" name="pesquisar" placeholder="Pesquisar" required>
-            <button type="submit">Buscar</button>
-        </form>
+    <main class="pesquisa-main">
+        
+        <aside class="pesquisa-filtros">
+            <details open> <summary><h2>Filtros</h2></summary>
+                
+                <h3>Preço</h3>
+                <form>
+                    <input type="radio" id="fmep" name="preco" value="menor_preco">
+                    <label for="fmep">Menor preço</label> 
+                    <input type="radio" id="fmap" name="preco" value="maior_preco">
+                    <label for="fmap">Maior preço</label> 
+                </form>
+                
+                <h3>Avaliação</h3>
+                <form class="form-estrelas">
+                    <input type="radio" id="av1" name="avaliacao" value="1">
+                    <label for="av1">★</label>
+                    
+                    <input type="radio" id="av2" name="avaliacao" value="2">
+                    <label for="av2">★★</label>
+                    
+                    <input type="radio" id="av3" name="avaliacao" value="3">
+                    <label for="av3">★★★</label>
+                    
+                    <input type="radio" id="av4" name="avaliacao" value="4">
+                    <label for="av4">★★★★</label>
+                    
+                    <input type="radio" id="av5" name="avaliacao" value="5">
+                    <label for="av5">★★★★★</label>
+                </form>
+                
+                <h3>Tipo</h3>
+                <form>
+                    <input type="radio" id="t1" name="tipo" value="CPU">
+                    <label for="t1">CPU</label>
+                    <input type="radio" id="t2" name="tipo" value="GPU">
+                    <label for="t2">GPU</label>
+                    <input type="radio" id="t3" name="tipo" value="Placa_mae">
+                    <label for="t3">Placa-mãe</label>
+                    <input type="radio" id="t4" name="tipo" value="Memoria_RAM">
+                    <label for="t4">RAM</label>
+                    <input type="radio" id="t5" name="tipo" value="SSD">
+                    <label for="t5">HD/SSD</label>
+                    <input type="radio" id="t6" name="tipo" value="Fonte">
+                    <label for="t6">Fonte</label>
+                </form>
+            </details>
+        </aside>
+
+        <section class="pesquisa-conteudo">
+            <form class="pesquisa-form" action="/pesquisar" method="get">
+                <input type="search" name="pesquisar" placeholder="O que você está procurando?" required>
+                <button type="submit">Buscar</button>
+            </form>
+            
+            </section>
+
     </main>
+
 </body>
 </html>

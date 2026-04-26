@@ -1,49 +1,375 @@
+@import url('https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
-h1{
-    color: rgb(3, 13, 48);
-    font-family: 'Times New Roman', Times, serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Nunito", sans-serif;
+    outline: none;
+    border: none;
+    text-decoration: none;
+    transition: .2s linear;
 }
 
-h2{
-    color: rgb(3, 13, 48);
-    font-family: 'Times New Roman', Times, serif;
+html {
+    font-size: 62.5%; /* Isso define que 1rem = 10px */
+    scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
-h3{
-    color: rgb(3, 13, 48);
-    font-family: 'Times New Roman', Times, serif;
+body {
+    background-color: rgb(209, 209, 214);
+    color: rgb(22, 32, 43);
+    font-weight: 400;
+    /* Adicionado espaçamento no topo para o conteúdo não sumir atrás do header fixo */
+    padding-top: 10rem; 
 }
 
-p{
-    color: rgb(3, 13, 48);
-    font-family: 'Times New Roman', Times, serif;
+/* --- TIPOGRAFIA --- */
+h1, h2, h3 {
+    margin-bottom: 1.5rem;
+    color: rgb(22, 32, 43);
 }
 
-a{
-    color: rgb(3, 13, 48);
-    font-family: 'Times New Roman', Times, serif;
+h1 { font-size: 3rem; }
+h2 { font-size: 2.5rem; }
+h3 { font-size: 2rem; }
+p { font-size: 1.6rem; }
+
+/* --- LAYOUT GERAL --- */
+section, main {
+    padding: 2rem 9%;
+}
+
+/* --- HEADER E NAVEGAÇÃO --- */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgb(22, 32, 43);
+    padding: 2rem 9%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .1);
+}
+
+header .logo {
+    font-size: 3rem;
+    color: rgb(209, 209, 214);
+    font-weight: bolder;
+    cursor: pointer;
+}
+
+header h1 {
+    color: rgb(209, 209, 214); /* Para os headers das páginas de login/registro */
+    margin: 0;
+}
+
+header .navbar a {
+    color: rgb(209, 209, 214);
+    font-size: 2rem;
+    padding: 0 1.5rem;
+    cursor: pointer;
+}
+
+header .navbar a:hover {
+    color: rgb(17, 122, 224);
+}
+
+/* --- BOTÕES PADRONIZADOS --- */
+button, .botao {
+    display: inline-block;
+    margin-top: 1rem;
+    border-radius: .5rem; /* Suavizado para combinar com os inputs */
+    background: rgb(22, 32, 43); /* Azul escuro do tema */
+    color: white;
+    padding: 1rem 2.5rem;
+    cursor: pointer;
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+button:hover, .botao:hover {
+    background: rgb(17, 122, 224);
+}
+
+/* --- FORMULÁRIOS E INPUTS --- */
+/* --- FORMULÁRIOS E INPUTS --- */
+form {
+    background: white;
+    padding: 2rem;
+    border-radius: .5rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .1);
+    max-width: 40rem;
+    margin: 0 auto 2rem auto;
+    text-align: center; /* Centraliza o botão e o conteúdo interno */
+}
+
+/* Reduz o espaço entre os blocos de input/label */
+form section {
+    padding: 0.5rem 0; 
+    text-align: left; /* Garante que o texto da label continue na esquerda */
 }
 
 label {
-    color: rgb(3, 13, 48);
-    font-family: 'Times New Roman', Times, serif;
-    display: block; /* Faz o label ocupar a linha inteira, jogando o input para baixo */
-    margin-bottom: 5px; /* Dá um pequeno respiro entre o texto e a caixa de digitação */
+    color: rgb(22, 32, 43);
+    font-weight: bold;
+    display: block;
+    margin-bottom: .5rem;
+    font-size: 1.6rem;
 }
 
-.componentes {
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"] {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.6rem;
+    border: .1rem solid #ccc;
+    border-radius: .5rem;
+    margin-bottom: 0.5rem; /* Reduzido de 1.5rem para 0.5rem */
+}
+
+/* Centraliza o link "Criar nova conta" */
+p {
+    text-align: center;
+    font-size: 1.6rem;
+}
+
+/* Container principal das páginas de Login e Registro */
+.auth-page {
+    display: flex;
+    flex-direction: column; /* Coloca o form em cima e o link embaixo */
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: center;     /* Centraliza horizontalmente */
+    
+    /* Faz o container ocupar a altura toda da tela, 
+       descontando os 10rem do padding-top que você já tem no body */
+    min-height: calc(100vh - 10rem); 
+    
+    padding: 2rem;
+}
+
+/* Garante que o formulário não fique esticado e use a largura máxima definida */
+.auth-page form {
+    width: 100%;
+    max-width: 40rem;
+    margin: 0; /* Removemos o margin auto pois o Flexbox já centraliza */
+    margin-bottom: 2rem; /* Espaço para o link de baixo */
+}
+
+/* --- PROJETOS (index.html) --- */
+.projetos .box {
     display: flex;
     flex-direction: column;
+    gap: 1.5rem;
+    flex: 1 1 30rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .1);
+    border-radius: .5rem;
+    padding: 2rem;
+    background-color: white;
+    position: relative;
+    text-align: center;
+}
+
+.projetos .box .image {
+    overflow: hidden;
+    border-radius: .5rem;
+}
+
+.projetos .box .image img {
+    width: 100%;
+    height: 25rem;
+    object-fit: cover; /* Evita que a imagem fique achatada */
+}
+
+.projetos .box:hover .image img {
+    transform: scale(1.05);
+}
+
+details {
+    background: white;
+    padding: 1.5rem;
+    border-radius: .8rem;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,0.05);
+}
+
+summary {
+    cursor: pointer;
+    list-style: none; /* Remove a setinha padrão no Chrome/Safari */
+}
+
+summary h2 {
+    display: inline-block;
+    margin: 0;
+}
+
+summary::after {
+    content: ' ▼';
+    font-size: 1.2rem;
+}
+
+details[open] summary::after {
+    content: ' ▲';
+}
+
+/* Estilização dos grupos de filtros */
+details h3 {
+    margin: 2rem 0 1rem 0;
+    border-bottom: 2px solid rgb(209, 209, 214);
+    padding-bottom: .5rem;
+}
+
+details form {
+    display: grid;
+    /* Cria duas colunas exatas: uma pequena pra bolinha, e o restante pro texto */
+    grid-template-columns: min-content 1fr; 
+    align-items: center;
+    row-gap: 1rem;    /* Espaço vertical (um filtro do outro) */
+    column-gap: 1rem; /* Espaço horizontal (da bolinha pro texto) */
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
+}
+
+/* Estilização dos Radio Buttons e Labels de filtro */
+details label {
+    display: block;
+    font-size: 1.6rem;
+    cursor: pointer;
+    padding: .8rem 1rem; /* Deixei o botão um pouco mais "gordinho" pra facilitar o clique */
+    border-radius: .5rem;
+    /*background: #f0f0f0;*/
+    transition: .2s;
+    margin: 0; 
+}
+
+details label:hover {
+    background: #e0e0e0;
+}
+
+details input[type="radio"] {
+    cursor: pointer;
+    width: 1.8rem;
+    height: 1.8rem;
+}
+
+/* =========================================
+   ESTRELAS DO FILTRO DE AVALIAÇÃO
+   ========================================= */
+.form-estrelas label {
+    color: rgb(95, 174, 248); /* Cor amarelo/dourado clássica de estrelas */
+    font-size: 2rem; /* Deixa as estrelas um pouco maiores */
+    letter-spacing: 0.2rem; /* Dá um pequeno espaço entre uma estrela e outra */
+    
+}
+
+/* Quando passar o mouse por cima do bloco cinza, a estrela dá um leve brilho */
+.form-estrelas label:hover {
+    color: rgb(17, 122, 224);
+}
+
+/* =========================================
+   PÁGINA DE PESQUISA (Layout Lado a Lado)
+   ========================================= */
+
+/* Transforma o main num layout de duas colunas */
+.pesquisa-main {
+    display: flex;
+    flex-direction: row; /* Coloca os elementos um ao lado do outro */
+    gap: 3rem; /* Espaço entre os filtros e a barra de pesquisa */
     align-items: flex-start;
-    gap: 10px;
-    margin-top: 15px;
-    margin-bottom: 30px;
+}
+
+/* Coluna 1: Filtros na esquerda */
+.pesquisa-filtros {
+    width: 28rem; /* Define uma largura fixa para a barra lateral */
+    flex-shrink: 0; /* Impede que a coluna amasse em telas menores */
+}
+
+/* Coluna 2: Conteúdo e Busca na direita */
+.pesquisa-conteudo {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    /* Essa é a mágica: tira o espaçamento padrão da section para não empurrar a barra pra baixo */
+    padding: 0; 
+}
+
+/* Formulário de Busca (Tira o bloco branco e alinha) */
+.pesquisa-form {
+    background: transparent; /* Remove o fundo branco */
+    box-shadow: none; /* Remove a sombra */
+    padding: 0;
+    margin: 0;
+    max-width: 100%; /* Permite que a barra ocupe o máximo de espaço */
+    text-align: left;
+    
+    /* Configuração para colocar o input e o botão lado a lado */
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Espaço entre a barra e o botão */
+}
+
+/* Barra de digitação comprida */
+.pesquisa-form input[type="search"] {
+    flex: 1; /* Faz a barra esticar para preencher o espaço */
+    margin-bottom: 0; /* Tira a margem de baixo para alinhar perfeitamente com o botão */
+    padding: 1.5rem; /* Deixa a barra mais "gordinha" e elegante */
+    font-size: 1.8rem;
+}
+
+/* Botão "Buscar" do lado */
+.pesquisa-form button {
+    margin-top: 0; /* Tira a margem para alinhar com o input */
+    padding: 1.5rem 3rem; /* Ajusta a altura do botão para bater com a barra */
+    height: auto;
+}
+
+/* --- COMPONENTES (montarprojeto.html) --- */
+/* --- COMPONENTES (montarprojeto.html) --- */
+.componentes {
+    display: flex;
+    flex-direction: column; /* Volta a ficar um embaixo do outro */
+    align-items: flex-start;
+    gap: 1rem; /* Equivalente aos seus 10px */
+    margin-top: 1.5rem;
+    margin-bottom: 3rem;
 }
 
 .componentes button {
-    padding: 10px 15px;
-    font-size: 16px;
+    /* Restaurando o formato original que você fez */
+    padding: 1rem 1.5rem; 
+    font-size: 1.6rem;
     cursor: pointer;
     width: auto;
+    margin-top: 0;
+    
+    /* Removendo o azul escuro global para voltar ao botão cinza padrão */
+    background: #efefef;
+    color: black;
+    border: .1rem solid #767676;
+    border-radius: .3rem;
+    font-weight: normal;
 }
 
+.componentes button:hover {
+    background: #e5e5e5; /* Um cinza um pouco mais escuro ao passar o mouse */
+}
+
+/* --- LINKS EXTRAS (Registro/Login) --- */
+p a {
+    color: rgb(22, 32, 43);
+    font-weight: bold;
+}
+
+p a:hover {
+    color: rgb(17, 122, 224);
+    text-decoration: underline;
+}
