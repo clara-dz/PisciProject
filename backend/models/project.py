@@ -1,6 +1,6 @@
 class Project:
-    def __init__(self, ID, User_id, Project_Name, Description, Mb, CPU, GPU, MEM_RAM, SSD, Fonte, Compatibility):
-        self.ID = ID
+    def __init__(self, Project_ID, User_id, Project_Name, Description, Mb, CPU, GPU, MEM_RAM, SSD, Fonte, Compatibility):
+        self.Project_ID = Project_ID
         self.User_id = User_id
         self.Project_Name = Project_Name
         self.Description = Description

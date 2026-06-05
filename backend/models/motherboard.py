@@ -1,9 +1,9 @@
 class MotherBoard:
-    def __init__(self, ID, Name, Manufacturer, Socket, Chipset, form_factor, dimensions_mm, Slots_Ram, Ram_type, Ram_max_vel, Ram_max_cap, Pcie_version, Pcie_x16_slots, m2_slots, M2_pcie_version, Sata_ports):
-        self.ID = ID
+    def __init__(self, MB_ID, Name, Manufacturer, MB_Socket, Chipset, form_factor, dimensions_mm, Slots_Ram, Ram_type, Ram_max_vel, Ram_max_cap, Pcie_version, Pcie_x16_slots, m2_slots, M2_pcie_version, Sata_ports):
+        self.MB_ID = MB_ID
         self.Name = Name
         self.Manufacturer = Manufacturer
-        self.Socket = Socket
+        self.MB_Socket = MB_Socket
         self.Chipset = Chipset
         self.form_factor = form_factor
         self.dimensions_mm = dimensions_mm

@@ -1,6 +1,6 @@
 class SSD:
-    def __init__(self, ID, Name, Manufacturer, Interface, Format, Capacity):
-        self.ID = ID
+    def __init__(self, SSD_ID, Name, Manufacturer, Interface, Format, Capacity):
+        self.SSD_ID = SSD_ID
         self.Name = Name
         self.Manufacturer = Manufacturer
         self.Interface = Interface

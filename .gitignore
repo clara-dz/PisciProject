@@ -1,0 +1,24 @@
+# =========================
+# AMBIENTES VIRTUAIS
+# =========================
+venv/
+env/
+.venv/
+
+# =========================
+# CACHE E ARQUIVOS COMPILADOS PYTHON
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# SEGURANÇA (Senhas e Chaves)
+# =========================
+.env
+
+# =========================
+# SISTEMA OPERACIONAL (Opcional)
+# =========================
+.DS_Store
+Thumbs.db

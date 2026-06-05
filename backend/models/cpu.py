@@ -1,11 +1,11 @@
 class CPU:
-    def __init__(self, ID, Name, Manufacturer, Socket, Tdp, Have_Integrated_GPU):
-        self.id = ID
+    def __init__(self, CPU_ID, Name, Manufacturer, CPU_Socket, CPU_TDP, Have_GPU):
+        self.CPU_ID = CPU_ID
         self.Name = Name
         self.Manufacturer = Manufacturer
-        self.Socket = Socket
-        self.Tdp = Tdp
-        self.Have_Integrated_GPU = Have_Integrated_GPU
+        self.CPU_Socket = CPU_Socket
+        self.CPU_TDP = CPU_TDP
+        self.Have_GPU = Have_GPU
 
     def __repr__(self):
         return f"<CPU {self.Name} ({self.Socket})>"
