@@ -1,33 +1,38 @@
 class CompatibilityService:
     
-    def check_compatibility(self, project_obj, novo_componente_obj, tipo):
+    def check_compatibility(self, project_obj):
 
-        # Se não enviou objeto válido, aprova direto para não quebrar
-        if not novo_componente_obj:
-            return {"is_compatible": True, "warnings": []}
 
-        # O seu sistema de roteamento!
-        if tipo == 'CPU':
-            return self._analisa_CPU(project_obj, novo_componente_obj)
+        project_obj.Compatibility = True
+        all_warnings = []
+
+        if project_obj.CPU:
+            # Passa o próprio componente de dentro do projeto para a função analítica
+            resultado_cpu = self._analisa_CPU(project_obj, project_obj.CPU)
+            all_warnings.extend(resultado_cpu.get("warnings", []))
+
+        if project_obj.Mb:
+            resultado_mb = self._analisa_MB(project_obj, project_obj.Mb)
+            all_warnings.extend(resultado_mb.get("warnings", []))
+
+        if project_obj.GPU:
+            resultado_gpu = self._analisa_GPU(project_obj, project_obj.GPU)
+            all_warnings.extend(resultado_gpu.get("warnings", []))
+
+        if project_obj.MEM_RAM:
+            resultado_ram = self._analisa_RAM(project_obj, project_obj.MEM_RAM)
+            all_warnings.extend(resultado_ram.get("warnings", []))
+
+        if project_obj.Power:
+            resultado_fonte = self._analisa_Fonte(project_obj, project_obj.Power)
+            all_warnings.extend(resultado_fonte.get("warnings", []))
             
-        elif tipo == 'MotherBoard':
-            return self._analisa_MB(project_obj, novo_componente_obj)
-            
-        elif tipo == 'Power':
-            return self._analisa_Fonte(project_obj, novo_componente_obj)
-        
-        elif tipo == 'GPU':
-            return self._analisa_GPU(project_obj, novo_componente_obj)
-        
-        elif tipo == 'SSD':
-            return self._analisa_SSD(project_obj, novo_componente_obj)
+        is_compatible = project_obj.Compatibility
 
-        elif tipo == 'MEM_RAM':
-            return self._analisa_RAM(project_obj, novo_componente_obj)
-            
-        # Se for um componente que ainda não tem regra (ex: SSD), passa direto
-        return {"is_compatible": True, "warnings": []}
-
+        return {
+            "is_compatible": is_compatible,
+            "warnings": all_warnings
+        }
     # ========================================================================
     # AS FUNÇÕES ESPECIALISTAS (Privadas)
     # ========================================================================
@@ -64,19 +69,19 @@ class CompatibilityService:
         # se fonte_nova.potencia < total_watts: compativel = False...
         pass
 
-    def _analisa_GPU(self, projeto_completo, fonte_nova):
+    def _analisa_GPU(self, projeto_completo, GPU_nova):
         # Exemplo rápido de como seria outra análise isolada
         # total_watts = calcular_soma_de_watts(projeto_completo)
         # se fonte_nova.potencia < total_watts: compativel = False...
         pass
 
-    def _analisa_SSD(self, projeto_completo, fonte_nova):
+    def _analisa_SSD(self, projeto_completo, SSD_novo):
         # Exemplo rápido de como seria outra análise isolada
         # total_watts = calcular_soma_de_watts(projeto_completo)
         # se fonte_nova.potencia < total_watts: compativel = False...
         pass
 
-    def _analisa_RAM(self, projeto_completo, fonte_nova):
+    def _analisa_RAM(self, projeto_completo, MEM_RAM_nova):
         # Exemplo rápido de como seria outra análise isolada
         # total_watts = calcular_soma_de_watts(projeto_completo)
         # se fonte_nova.potencia < total_watts: compativel = False...

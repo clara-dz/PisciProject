@@ -19,9 +19,13 @@ class ProjectService:
         """
         flask_session['novo_projeto'] = {
             'MotherBoard': None, 'CPU': None, 'GPU': None, 
-            'MEM_RAM': None, 'SSD': None, 'Power': None
+            'MEM_RAM': None, 'SSD': None, 'Power': None, 'Compatibility': True
         }
         
+        flask_session['project_id'] = None
+        flask_session['project_name'] = "Rascunho Novo"
+        flask_session['project_description'] = ""
+
         # Avisa o Flask para gravar essa mudança no cookie do usuário
         flask_session.modified = True 
         
@@ -33,36 +37,159 @@ class ProjectService:
     def add_component(self, component_id, tipo, flask_session): # ------------------------------------------------------------------------
 
         if 'novo_projeto' not in flask_session:
-            flask_session['novo_projeto'] = {
-                'MotherBoard': None, 'CPU': None, 'GPU': None, 
-                'MEM_RAM': None, 'SSD': None, 'Power': None
-            }
+            self.start_new_project(flask_session)
         
         projeto_atual_dict = flask_session['novo_projeto']
         projeto_atual_dict[tipo] = component_id
-        
+
+        projeto_objeto= self._montar_objeto_projeto(projeto_atual_dict, flask_session)
+
+        relatorio = self.comp_service.check_compatibility(projeto_objeto)
+
+        projeto_atual_dict['Compatibility'] = projeto_objeto.Compatibility
+
         flask_session['novo_projeto'] = projeto_atual_dict
         flask_session.modified = True
-
-        projeto_objeto, novo_componente_obj = self._montar_objeto_projeto(
-            projeto_atual_dict, 
-            flask_session.get('user_id'), 
-            tipo
-        )
-
-        # 3. Envia para análise de compatibilidade
-        relatorio = self.comp_service.check_compatibility(projeto_objeto, novo_componente_obj, tipo)
         
         return {
             "sucesso": True, 
             "projeto": projeto_atual_dict, 
             "compatibilidade": relatorio
         }
+    
+    def remove_component(self, tipo, flask_session): # ----------------------------------------------------------------------------------
+
+        if 'novo_projeto' not in flask_session:
+            return {"sucesso": False, "mensagem": "Nenhum projeto ativo."}
+            
+        projeto_atual_dict = flask_session['novo_projeto']
+        projeto_atual_dict[tipo] = None
+        
+        projeto_objeto = self._montar_objeto_projeto(projeto_atual_dict, flask_session)
+        relatorio = self.comp_service.check_compatibility(projeto_objeto)
+        
+        projeto_atual_dict['Compatibility'] = projeto_objeto.Compatibility
+        
+        flask_session['novo_projeto'] = projeto_atual_dict
+        flask_session.modified = True
+        
+        return {
+            "sucesso": True,
+            "projeto": projeto_atual_dict,
+            "compatibilidade": relatorio
+        }
+    
+    def save_project(self, flask_session, project_name, description): # -----------------------------------------------------------------
+        """Executa a lógica de Upsert (Insert ou Update)."""
+
+        user_id = flask_session.get('user_id')
+        if not user_id:
+            return {"sucesso": False, "mensagem": "Usuário não autenticado. Faça login para salvar."}
+
+        projeto_dict = flask_session.get('novo_projeto')
+        if not projeto_dict:
+            return {"sucesso": False, "mensagem": "Nenhum projeto ativo para salvar."}
+
+        project_id = flask_session.get('project_id') 
+
+        if project_id:
+            # Já existe: UPDATE
+            self.repository.update_project(
+                project_id=project_id,
+                name=project_name,
+                description=description,
+                cpu_id=projeto_dict.get('CPU'),
+                mb_id=projeto_dict.get('MotherBoard'),
+                gpu_id=projeto_dict.get('GPU'),
+                ram_id=projeto_dict.get('MEM_RAM'),
+                ssd_id=projeto_dict.get('SSD'),
+                power_id=projeto_dict.get('Power'),
+                compatibility=projeto_dict.get('Compatibility')
+            )
+            mensagem = "Projeto atualizado com sucesso!"
+        else:
+            # É novo: INSERT
+            novo_id = self.repository.insert_project(
+                user_id=user_id,
+                name=project_name,
+                description=description,
+                cpu_id=projeto_dict.get('CPU'),
+                mb_id=projeto_dict.get('MotherBoard'),
+                gpu_id=projeto_dict.get('GPU'),
+                ram_id=projeto_dict.get('MEM_RAM'),
+                ssd_id=projeto_dict.get('SSD'),
+                power_id=projeto_dict.get('Power'),
+                compatibility=projeto_dict.get('Compatibility')
+            )
+            flask_session['project_id'] = novo_id
+            mensagem = "Novo projeto salvo com sucesso!"
+
+        flask_session['project_name'] = project_name
+        flask_session['project_description'] = description
+        flask_session.modified = True
+
+        return {"sucesso": True, "mensagem": mensagem, "project_id": flask_session['project_id']}
+
+    def load_project(self, project_id, flask_session):
+        """Carrega um projeto do banco de dados e o coloca na sessão atual."""
+        user_id = flask_session.get('user_id')
+        if not user_id:
+            return {"sucesso": False, "mensagem": "Usuário não autenticado."}
+
+        projeto_db = self.repository.buscar_projeto(project_id, user_id)
+        
+        if not projeto_db:
+            return {"sucesso": False, "mensagem": "Projeto não encontrado ou você não tem permissão para acessá-lo."}
+
+        flask_session['project_id'] = projeto_db['ID']
+        flask_session['project_name'] = projeto_db['Project_Name']
+        flask_session['project_description'] = projeto_db['Description']
+        
+        flask_session['novo_projeto'] = {
+            'CPU': projeto_db['CPU_ID'],
+            'MotherBoard': projeto_db['MB_ID'],
+            'GPU': projeto_db['GPU_ID'],
+            'MEM_RAM': projeto_db['MEM_RAM_ID'],
+            'SSD': projeto_db['SSD_ID'],
+            'Power': projeto_db['POWER_ID'],
+            # Converte o tinyint do MySQL de volta para booleano no Python
+            'Compatibility': bool(projeto_db['Compatibility']) 
+        }
+        
+        flask_session.modified = True
+
+        return {
+            "sucesso": True, 
+            "mensagem": "Projeto carregado com sucesso!", 
+            "projeto": flask_session['novo_projeto']
+        }
+
+    def get_user_projects(self, flask_session):
+
+        user_id = flask_session.get('user_id')
+        if not user_id:
+            return {"sucesso": False, "mensagem": "Usuário não autenticado."}
+
+        projetos_db = self.repository.listar_projetos_usuario(user_id)
+        
+        projetos_formatados = []
+        for proj in projetos_db:
+            projetos_formatados.append({
+                "id": proj["ID"],
+                "name": proj["Project_Name"],
+                "description": proj["Description"],
+                "is_compatible": bool(proj["Compatibility"])
+            })
+
+        return {
+            "sucesso": True, 
+            "projetos": projetos_formatados
+        }
 
     # ========================================================================
     # FUNÇÃO DE APOIO (Privada)
     # ========================================================================
-def _montar_objeto_projeto(self, projeto_dict, user_id, tipo_adicionado):
+    def _montar_objeto_projeto(self, projeto_dict,flask_session):
         
         cpu_obj, mb_obj, gpu_obj = None, None, None
         ram_obj, ssd_obj, power_obj = None, None, None
@@ -161,27 +288,17 @@ def _montar_objeto_projeto(self, projeto_dict, user_id, tipo_adicionado):
                 )
 
         projeto_principal = Project(
-            ID=None, 
-            User_id=user_id, 
-            Project_Name="Rascunho", 
-            Description="Projeto em andamento",
+            ID=flask_session.get('project_id'), 
+            User_id=flask_session.get('user_id'), 
+            Project_Name=flask_session.get('project_name', 'Rascunho'), 
+            Description=flask_session.get('project_description', ''),
             Mb=mb_obj,     
             CPU=cpu_obj,   
             GPU=gpu_obj, 
             MEM_RAM=ram_obj, 
             SSD=ssd_obj, 
-            Fonte=power_obj, 
-            Compatibility=None
+            Power=power_obj, 
+            Compatibility=projeto_dict.get('Compatibility', True)
         )
 
-        # 4. Descobre qual foi a peça que acabou de ser adicionada (para o Padrão de Delegação)
-        componente_destaque = None
-        if tipo_adicionado == 'CPU': componente_destaque = cpu_obj
-        elif tipo_adicionado == 'MotherBoard': componente_destaque = mb_obj
-        elif tipo_adicionado == 'GPU': componente_destaque = gpu_obj
-        elif tipo_adicionado == 'MEM_RAM': componente_destaque = ram_obj
-        elif tipo_adicionado == 'SSD': componente_destaque = ssd_obj
-        elif tipo_adicionado == 'Power': componente_destaque = power_obj
-
-        # Retorna o projeto completo E o componente isolado para análise técnica
-        return projeto_principal, componente_destaque
+        return projeto_principal
