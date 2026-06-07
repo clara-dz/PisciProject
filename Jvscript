@@ -1,0 +1,128 @@
+ // ------------------------------------------------------------------------------------------- PC BUILDER ROUTE
+ // Base URL configurada no prefixo do Blueprint
+const BASE_URL = '/project';
+
+/**
+ * 1. Iniciar um Novo Projeto (Zera a sessão)
+ */
+async function startProject() {
+    try {
+        const response = await fetch(`${BASE_URL}/start`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const dados = await response.json();
+        console.log(dados.message, dados.projeto_vazio);
+        return dados;
+    } catch (erro) {
+        console.error("Erro ao iniciar projeto:", erro);
+    }
+}
+
+/**
+ * 2. Adicionar um Componente ao Projeto
+ * @param {number} componentId - ID do componente vindo do banco
+ * @param {string} tipo - Slot do componente (ex: 'CPU', 'MotherBoard')
+ */
+async function addComponent(componentId, tipo) {
+    try {
+        const response = await fetch(`${BASE_URL}/add-component`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ component_id: componentId, tipo: tipo })
+        });
+        const dados = await response.json();
+        
+        if (!response.ok) throw new Error(dados.message || dados.mensagem);
+        
+        console.log("Sucesso:", dados.projeto_atual, dados.relatorio_compatibilidade);
+        return dados;
+    } catch (erro) {
+        console.error("Erro ao adicionar componente:", erro.message);
+    }
+}
+
+/**
+ * 3. Remover um Componente do Projeto
+ * @param {string} tipo - Slot que deseja esvaziar (ex: 'GPU', 'Power')
+ */
+async function removeComponent(tipo) {
+    try {
+        const response = await fetch(`${BASE_URL}/remove-component`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tipo: tipo })
+        });
+        const dados = await response.json();
+        
+        if (!response.ok) throw new Error(dados.mensagem);
+        
+        console.log("Removido:", dados.projeto, dados.compatibilidade);
+        return dados;
+    } catch (erro) {
+        console.error("Erro ao remover componente:", erro.message);
+    }
+}
+
+/**
+ * 4. Salvar Projeto (Insert ou Update automático)
+ * @param {string} name - Nome opcional dado pelo usuário
+ * @param {string} description - Descrição opcional dada pelo usuário
+ */
+async function saveProject(name = null, description = null) {
+    try {
+        const response = await fetch(`${BASE_URL}/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, description: description })
+        });
+        const dados = await response.json();
+        
+        if (!response.ok) throw new Error(dados.message || dados.mensagem);
+        
+        console.log("Projeto Salvo! ID:", dados.project_id);
+        return dados;
+    } catch (erro) {
+        console.error("Erro ao salvar projeto:", erro.message);
+    }
+}
+
+/**
+ * 5. Carregar um Projeto Específico do Banco
+ * @param {number} projectId - ID único do projeto a ser aberto
+ */
+async function loadProject(projectId) {
+    try {
+        // Note que como é GET, passamos o ID direto na URL e não enviamos corpo (body)
+        const response = await fetch(`${BASE_URL}/load-project/${projectId}`, {
+            method: 'GET'
+        });
+        const dados = await response.json();
+        
+        if (!response.ok) throw new Error(dados.mensagem);
+        
+        console.log("Projeto Carregado:", dados.projeto);
+        return dados;
+    } catch (erro) {
+        console.error("Erro ao carregar projeto:", erro.message);
+    }
+}
+
+/**
+ * 6. Listar Todos os Projetos do Usuário Logado
+ */
+async function listUserProjects() {
+    try {
+        const response = await fetch(`${BASE_URL}/my-projects`, {
+            method: 'GET'
+        });
+        const dados = await response.json();
+        
+        if (!response.ok) throw new Error(dados.mensagem);
+        
+        console.log("Lista de Projetos:", dados.projetos);
+        return dados;
+    } catch (erro) {
+        console.error("Erro ao listar projetos:", erro.message);
+    }
+}
