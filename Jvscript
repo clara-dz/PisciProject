@@ -1,4 +1,19 @@
+ /*
+        IDEIAS SUGERIDAS PELO GEMINI PARA REQUISICOES EM JAVASCRIPT
+
+        SEPARADAS PELAS ROUTES (TIPOS DE CASOS DE USO)
+
+
+    Como você está usando session do Flask, o navegador precisa gerenciar os cookies de sessão de forma automática.
+
+    Se o seu Frontend Javascript rodar no mesmo domínio/porta do Flask (ex: o Flask servindo os arquivos HTML), o código acima funcionará perfeitamente direto da caixa.
+
+    Se você estiver rodando o Frontend isolado em outra porta (ex: React rodando na 3000 e Flask na 5000), você precisará adicionar a propriedade credentials: 'include' 
+    dentro do objeto de configuração de cada comando fetch para permitir que o navegador envie e receba os cookies da sessão.
+ */
+
  // ------------------------------------------------------------------------------------------- PC BUILDER ROUTE
+
  // Base URL configurada no prefixo do Blueprint
 const BASE_URL = '/project';
 
@@ -124,5 +139,105 @@ async function listUserProjects() {
         return dados;
     } catch (erro) {
         console.error("Erro ao listar projetos:", erro.message);
+    }
+}
+
+ // ------------------------------------------------------------------------------------------- PC BUILDER ROUTE
+
+// Base URL configurada no prefixo do Blueprint de autenticação
+const AUTH_BASE_URL = '/auth';
+
+/**
+ * 1. Fazer Login
+ * Envia as credenciais do usuário e, se der certo, a sessão guardará o user_id.
+ * * @param {string} email - E-mail digitado pelo usuário
+ * @param {string} password - Senha digitada pelo usuário
+ */
+async function loginUser(email, password) {
+    try {
+        const response = await fetch(`${AUTH_BASE_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: password })
+        });
+        
+        const dados = await response.json();
+        
+        // Se o status HTTP não for 200/2xx, lança o erro para o catch
+        if (!response.ok) {
+            throw new Error(dados.message); 
+        }
+        
+        console.log("Sucesso:", dados.message);
+        
+        // Exemplo: Redireciona o usuário para a página de montagem após logar
+        // window.location.href = '/builder.html'; 
+        
+        return dados;
+    } catch (erro) {
+        console.error("Falha no login:", erro.message);
+        // Exiba o erro na interface do usuário (ex: span de erro no formulário)
+        // alert("Erro: " + erro.message);
+    }
+}
+
+/**
+ * 2. Criar Conta (Registro)
+ * Cadastra o usuário no banco e já efetua o login automaticamente.
+ * * @param {string} name - Nome digitado no formulário
+ * @param {string} email - E-mail digitado no formulário
+ * @param {string} password - Senha digitada no formulário
+ */
+async function registerUser(name, email, password) {
+    try {
+        const response = await fetch(`${AUTH_BASE_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, email: email, password: password })
+        });
+        
+        const dados = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(dados.message);
+        }
+        
+        console.log("Conta criada com sucesso:", dados.message);
+        
+        // Exemplo: Redireciona o usuário para a aplicação já logado
+        // window.location.href = '/builder.html';
+        
+        return dados;
+    } catch (erro) {
+        console.error("Falha no cadastro:", erro.message);
+    }
+}
+
+/**
+ * 3. Fazer Logout (Sair)
+ * Esvazia a sessão no backend, deslogando o usuário por completo.
+ */
+async function logoutUser() {
+    try {
+        // Logout não precisa de body, apenas chamamos a rota via POST
+        const response = await fetch(`${AUTH_BASE_URL}/logout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const dados = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(dados.message);
+        }
+        
+        console.log("Logout realizado:", dados.message);
+        
+        // Exemplo: Redireciona o usuário de volta para a Home ou tela de Login
+        // window.location.href = '/login.html';
+        
+        return dados;
+    } catch (erro) {
+        console.error("Erro ao sair:", erro.message);
     }
 }

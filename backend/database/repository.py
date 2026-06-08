@@ -147,3 +147,43 @@ class ComponentRepository:
             if conexao.is_connected():
                 cursor.close()
                 conexao.close()
+
+
+class UserRepository:
+    def __init__(self):
+        self.db = DatabaseConnection()
+
+    def buscar_usuario_por_email(self, email):
+        query = "SELECT * FROM User WHERE Email = %s"
+        
+        conexao = self.db.get_connection()
+        if not conexao: return None
+        
+        try:
+            cursor = conexao.cursor(dictionary=True)
+            cursor.execute(query, (email,))
+            return cursor.fetchone()
+        finally:
+            if conexao.is_connected():
+                cursor.close()
+                conexao.close()
+
+    def insert_user(self, name, email, password):
+        query = "INSERT INTO User (Name, Email, Password) VALUES (%s, %s, %s)"
+        
+        conexao = self.db.get_connection()
+        if not conexao: return None
+        
+        try:
+            cursor = conexao.cursor()
+            cursor.execute(query, (name, email, password))
+            conexao.commit()
+            
+            return cursor.lastrowid
+        except Exception as e:
+            conexao.rollback()
+            raise e
+        finally:
+            if conexao.is_connected():
+                cursor.close()
+                conexao.close()
