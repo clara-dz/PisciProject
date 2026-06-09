@@ -28,8 +28,9 @@ def register():
     nome = dados.get('name')
     email = dados.get('email')
     senha = dados.get('password')
+    confirma_senha = dados.get('confirm_password')
 
-    resultado = auth_service.register(nome, email, senha, session)
+    resultado = auth_service.register(nome, email, senha, confirma_senha, session)
 
     if not resultado["sucesso"]:
         # 400 é o código para "Bad Request" (dados inválidos ou duplicados)

@@ -36,6 +36,13 @@ class ProjectService:
 
     def add_component(self, component_id, tipo, flask_session): # ------------------------------------------------------------------------
 
+        # REGRAS DE NEGOCIO BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+        
+        if projeto_atual_dict[tipo]:
+            return {"sucesso": True, "message": "Esse tipo de componente já existe no projeto"}
+        
+        # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
         if 'novo_projeto' not in flask_session:
             self.start_new_project(flask_session)
         
@@ -89,6 +96,9 @@ class ProjectService:
         projeto_dict = flask_session.get('novo_projeto')
         if not projeto_dict:
             return {"sucesso": False, "mensagem": "Nenhum projeto ativo para salvar."}
+        
+        if not projeto_dict['CPU'] and not projeto_dict['GPU'] and not projeto_dict['MotherBoard'] and not projeto_dict['SSD'] and not projeto_dict['MEM_RAM'] and not projeto_dict['Power']:
+            return {"sucesso": False, "mensagem": "Um projeto vazio não pode ser salvo"}
 
         project_id = flask_session.get('project_id') 
 

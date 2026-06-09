@@ -5,9 +5,12 @@ class AuthService:
         self.repository = UserRepository()
 
     def login(self, email, password, flask_session):
+        # REGRAS DE NEGOCIO BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+        
         if not email or not password:
             return {"sucesso": False, "mensagem": "E-mail e senha são obrigatórios."}
-
+        
+        # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
         user_db = self.repository.buscar_usuario_por_email(email)
 
         if not user_db:
@@ -46,15 +49,22 @@ class AuthService:
             "mensagem": "Você saiu da sua conta com sucesso."
         }
     
-    def register(self, name, email, password, flask_session):
+    def register(self, name, email, password, confirma_senha, flask_session):
+        # REGRAS DE NEGOCIO BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
         if not name or not email or not password:
             return {"sucesso": False, "mensagem": "Nome, e-mail e senha são obrigatórios."}
 
-        # Verifica se o e-mail já está cadastrado
+        if password != confirma_senha:
+            return {"sucesso": False, "mensagem": "As senhas não batem"}
+        
+        if len(password) < 6:
+            return {"sucesso": False, "mensagem": "A senha deve ter pelo menos 6 caracteres"}
+
         usuario_existente = self.repository.buscar_usuario_por_email(email)
         if usuario_existente:
             return {"sucesso": False, "mensagem": "Este e-mail já está em uso. Tente fazer login."}
 
+        # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
         novo_id = self.repository.insert_user(name, email, password)
 
         if not novo_id:

@@ -142,7 +142,7 @@ async function listUserProjects() {
     }
 }
 
- // ------------------------------------------------------------------------------------------- PC BUILDER ROUTE
+ // ------------------------------------------------------------------------------------------- AUTH ROUTE
 
 // Base URL configurada no prefixo do Blueprint de autenticação
 const AUTH_BASE_URL = '/auth';
@@ -183,21 +183,30 @@ async function loginUser(email, password) {
 
 /**
  * 2. Criar Conta (Registro)
- * Cadastra o usuário no banco e já efetua o login automaticamente.
+ * Cadastra o usuário no banco, agora com validação de confirmação de senha, 
+ * e já efetua o login automaticamente.
  * * @param {string} name - Nome digitado no formulário
  * @param {string} email - E-mail digitado no formulário
  * @param {string} password - Senha digitada no formulário
+ * @param {string} confirmPassword - Confirmação da senha digitada no formulário
  */
-async function registerUser(name, email, password) {
+async function registerUser(name, email, password, confirmPassword) {
     try {
         const response = await fetch(`${AUTH_BASE_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name, email: email, password: password })
+            // Adicionamos o confirm_password aqui no corpo da requisição!
+            body: JSON.stringify({ 
+                name: name, 
+                email: email, 
+                password: password,
+                confirm_password: confirmPassword 
+            })
         });
         
         const dados = await response.json();
         
+        // Se o status HTTP não for 2xx (ex: caiu no 400 de senhas diferentes)
         if (!response.ok) {
             throw new Error(dados.message);
         }
@@ -210,6 +219,8 @@ async function registerUser(name, email, password) {
         return dados;
     } catch (erro) {
         console.error("Falha no cadastro:", erro.message);
+        // Aqui você pode capturar o erro e mostrar na tela para o usuário 
+        // ex: "As senhas não coincidem" ou "E-mail já cadastrado"
     }
 }
 
