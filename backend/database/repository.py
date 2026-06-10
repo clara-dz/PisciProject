@@ -1,4 +1,5 @@
 from database.connection import DatabaseConnection
+import base64
 
 class ComponentRepository:
     def __init__(self):
@@ -148,6 +149,76 @@ class ComponentRepository:
                 cursor.close()
                 conexao.close()
 
+    def buscar_componentes(self, termo, categoria=None):
+
+        # 1. Dicionário de Segurança: Mapeia o filtro do frontend para as tabelas reais do banco
+        tabelas_validas = {
+            'CPU': 'CPU',
+            'GPU': 'GPU',
+            'MOTHERBOARD': 'MotherBoard', 
+            'RAM': 'MEM_RAM',
+            'SSD': 'SSD',
+            'POWER': 'POWER'
+        }
+        
+        resultados_finais = []
+        
+        # Se o termo for vazio, ele vira "%" (que significa "traga tudo")
+        termo_like = f"%{termo}%" if termo else "%"
+        
+        if categoria and categoria.upper() in tabelas_validas:
+            tabelas_para_buscar = [tabelas_validas[categoria.upper()]]
+        else:
+            tabelas_para_buscar = tabelas_validas.values()
+            
+        conexao = self.db.get_connection()
+        if not conexao: 
+            return []
+            
+        try:
+            cursor = conexao.cursor(dictionary=True)
+            
+            for tabela in tabelas_para_buscar:
+                
+                query = f"""
+                    SELECT 
+                        ID, 
+                        Name, 
+                        Manufacturer,
+                        Image, 
+                        '{tabela}' AS Categoria 
+                    FROM {tabela} 
+                    WHERE Name LIKE %s
+                    LIMIT 50"""
+                
+                cursor.execute(query, (termo_like,))
+                pecas_da_tabela = cursor.fetchall()
+                
+                for peca in pecas_da_tabela:
+                    if peca['Image']:
+                        try:
+                            # Converte o binário (blob) para string base64
+                            imagem_codificada = base64.b64encode(peca['Image']).decode('utf-8')
+                            peca['Image'] = f"data:image/jpeg;base64,{imagem_codificada}"
+                        except Exception as img_err:
+                            print(f"Erro ao converter imagem da peça ID {peca['ID']}: {img_err}")
+                            peca['Image'] = None # Em caso de arquivo corrompido, evita quebrar a busca
+                    else:
+                        # Se a coluna Image estiver vazia no banco
+                        peca['Image'] = None
+                        
+                    resultados_finais.append(peca)
+                
+            return resultados_finais
+            
+        except Exception as e:
+            print(f"Erro no banco de dados durante a busca: {e}")
+            return []
+            
+        finally:
+            if conexao.is_connected():
+                cursor.close()
+                conexao.close()
 
 class UserRepository:
     def __init__(self):
@@ -184,6 +255,71 @@ class UserRepository:
             conexao.rollback()
             raise e
         finally:
+            if conexao.is_connected():
+                cursor.close()
+                conexao.close()
+
+class ForumRepository:
+    def __init__(self):
+        self.db = DatabaseConnection()
+
+    def buscar_ultimos_comentarios(self):
+        conexao = self.db.get_connection()
+        if not conexao: 
+            return []
+
+        try:
+            cursor = conexao.cursor(dictionary=True)
+            
+            query = """
+                SELECT 
+                    c.ID, 
+                    c.Content, 
+                    u.Name AS AuthorName 
+                FROM Comments c
+                JOIN Users u ON c.UserID = u.ID
+                ORDER BY c.ID DESC
+                LIMIT 15
+            """
+            
+            cursor.execute(query)
+            return cursor.fetchall()
+            
+        except Exception as e:
+            print(f"Erro ao buscar comentários do fórum: {e}")
+            return []
+        finally:
+            if conexao.is_connected():
+                cursor.close()
+                conexao.close()
+
+    def salvar_comentario(self, user_id, conteudo, componente_id=None, componente_tipo=None):
+        conexao = self.db.get_connection()
+        if not conexao: 
+            return False
+
+        try:
+            cursor = conexao.cursor()
+            
+            query = """
+                INSERT INTO Comments (UserID, Content, ComponentID, ComponentType)
+                VALUES (%s, %s, %s, %s)
+            """
+            
+            cursor.execute(query, (user_id, conteudo, componente_id, componente_tipo))
+            
+            conexao.commit() 
+            return True
+            
+        except Exception as e:
+            if conexao.is_connected():
+                conexao.rollback() 
+                
+            print(f"Erro ao inserir comentário no banco: {e}")
+            return False
+            
+        finally:
+            # Fechamento seguro independente de sucesso ou falha
             if conexao.is_connected():
                 cursor.close()
                 conexao.close()
