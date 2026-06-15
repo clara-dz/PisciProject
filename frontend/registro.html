@@ -14,11 +14,11 @@
     </header>
 
     <main class="auth-page">
-        <form action="/registro" method="POST">
+        <form id="register-form">
 
             <section>
                 <label for="inputNome">Nome de usuário</label>
-                <input type="text" id="inputNome" name="nome" placeholder="Nome" required>
+                <input type="text" id="inputNome" name="name" placeholder="Nome" required>
             </section>
 
             <section>
@@ -28,14 +28,22 @@
 
             <section>
                 <label for="inputSenha">Senha</label>
-                <input type="password" id="inputSenha" name="senha" placeholder="Senha" required>
+                <input type="password" id="inputSenha" name="password" placeholder="Senha" required>
+            </section>
+
+            <section>
+                <label for="inputConfirmaSenha">Confirmar senha</label>
+                <input type="password" id="inputConfirmaSenha" name="confirm_password" placeholder="Confirmar senha" required>
             </section>
 
             <button type="submit">Continuar</button>
+
+            <p id="register-message"></p>
         </form>
 
         <p><a href="login.html">Já tenho uma conta</a></p>
     </main>
 
+    <script src="js/register.js"></script>
 </body>
 </html>

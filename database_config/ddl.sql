@@ -1,116 +1,143 @@
--- create database Piscis;
--- USE Piscis;
-	create table User (User_ID int(5),
-						Username char(50),
-						Email varchar(80) not null,
-						Password varchar(20) not null,
-						ProjectNumber int(20),
-						primary key (User_ID)
-						);
+DROP DATABASE IF EXISTS Piscis;
+CREATE DATABASE Piscis;
+USE Piscis;
 
-	create table CPU(CPU_ID INT(5),
-					 Name varchar(50) not null,
-					 Manufacturer char(30),
-					 CPU_Socket varchar(20) not null,
-					 CPU_TDP int(20) not null,
-					 Have_GPU boolean not null,
-					 primary key (CPU_ID)
-					);
-	create table MotherBoard(MB_ID int(5),
-							 Name varchar(50) not null,
-							 Manufacturer char(30),
-							 MB_Socket varchar(20) not null,
-							 Chipset varchar(20) not null,
-							 form_factor varchar(30) not null,
-							 dimensions_mm varchar(30) not null,
-							 Slots_Ram int(5) not null,
-							 Ram_type varchar(20) not null,
-							 Ram_max_vel int(10) not null,
-							 Ram_max_cap int(10) not null,
-							 Pcie_Version varchar(20) not null,
-							 Pcie_x16_slots varchar(20) not null,
-							 m2_slots int(10) not null,
-							 M2_pcie_version varchar(20) not null,
-							 Sata_ports int(5) not null,
-							 primary key(MB_ID)
-							 );
-	create table MEM_RAM(MEM_RAM_ID int,
-						 Name varchar(50) not null,
-						 Manufacturer char(30), 
-						 RAM_type varchar(20),
-						 Velocity int(10),
-						 Capacity int(10),
-						 Cas_Latency varchar(20),
-						 primary key (MEM_RAM_ID)
-						 );
-	create table GPU(GPU_ID int(5),
-						 Name varchar(50) not null,
-						 Manufacturer char(30), 
-						 Pcie_version varchar(20) not null,
-						 Pcie_lanes int(5) not null,
-						 Tgp int(10) not null,
-						 Power_Connectors varchar(30) not null,
-						 Length_mm int(10) not null,
-						 Ocupated_slots numeric(4,1) not null,
-						 primary key (GPU_ID)
-						 );
-	create table SSD(SSD_ID int(5),
-					 Name varchar(50) not null,
-					 Manufacturer char(30), 
-					 Interface varchar(20) not null,
-					 Format varchar (20) not null,
-					 Capacity int(10) not null,
-					 primary key(SSD_ID)
-					 );
-	create table POWER(POWER_ID int(5),
-					   Name varchar(50) not null,
-					   Manufacturer char(30), 
-					   Pot_Watts int(6),
-					   Efficiency numeric(4,1) not null,
-					   Modular boolean not null,
-					   Cpu_8pin_Count int(10) not null,
-					   Pcie_8pin_Count int(10) not null,
-					   Pcie_12vhpwr_Count int(10) not null,
-					   sata_power_count int(5) not null,
-					   primary key (POWER_ID)
-					   );
-	create table Comment(User_ID int(5),
-						Component_ID int(5),
-						Component_TYPE ENUM('CPU','Placa Mãe','Memória RAM', 'GPU', 'SSD', 'Fonte', 'Site') not null,
-						Comment varchar(600) not null,
-						foreign key (User_ID) references User(User_ID)
-						);
-	create table Project(Project_ID int(5),
-						 User_ID int(5),
-						 Project_name varchar(50),
-						 Description varchar(200),
-						 MotherBoard_ID int(5),
-						CPU_ID int(5),
-						GPU_ID int(5),
-						MEM_RAM_ID INT(5),
-						SSD_ID INT(5),
-						POWER_ID INT(5),
-						Compatibility boolean not null,
-						primary key (Project_ID),
-						foreign key (User_ID) references User(User_ID),
-						foreign key (MotherBoard_ID) references MotherBoard(MB_ID),
-						foreign key (CPU_ID) references CPU(CPU_ID),
-						foreign key (GPU_ID) references GPU(GPU_ID),
-						foreign key (MEM_RAM_ID) references MEM_RAM(MEM_RAM_ID),
-						foreign key (SSD_ID) references SSD(SSD_ID),
-						foreign key (POWER_ID) references POWER(POWER_ID)
-						);
-ALTER TABLE MotherBoard ADD Image_Data MEDIUMBLOB;
-ALTER TABLE CPU ADD Image_Data MEDIUMBLOB;
-ALTER TABLE GPU ADD Image_Data MEDIUMBLOB;
-ALTER TABLE MEM_RAM ADD Image_Data MEDIUMBLOB;
-ALTER TABLE SSD ADD Image_Data MEDIUMBLOB;
-ALTER TABLE POWER ADD Image_Data MEDIUMBLOB;
+CREATE TABLE User (
+    User_ID INT(5) AUTO_INCREMENT,
+    Name CHAR(50),
+    Email VARCHAR(80) NOT NULL UNIQUE,
+    Password VARCHAR(255) NOT NULL,
+    ProjectNumber INT(20) DEFAULT 0,
+    PRIMARY KEY (User_ID)
+);
 
-ALTER TABLE GPU 
-DROP COLUMN Power_Connectors,
-ADD Pcie_8pin_Count INT DEFAULT 0,
-ADD Pcie_6pin_Count INT DEFAULT 0,
-ADD Pcie_12vhpwr_Count INT DEFAULT 0;
-ALTER TABLE POWER 
-ADD Pcie_6pin_Count INT DEFAULT 0;
+CREATE TABLE CPU (
+    CPU_ID INT(5),
+    Name VARCHAR(50) NOT NULL,
+    Manufacturer CHAR(30),
+    CPU_Socket VARCHAR(20) NOT NULL,
+    CPU_TDP INT(20) NOT NULL,
+    Have_GPU BOOLEAN NOT NULL,
+    Image_Data MEDIUMBLOB,
+    PRIMARY KEY (CPU_ID)
+);
+
+CREATE TABLE MotherBoard (
+    MB_ID INT(5) AUTO_INCREMENT,
+    Name VARCHAR(50) NOT NULL,
+    Manufacturer CHAR(30),
+    MB_Socket VARCHAR(20) NOT NULL,
+    Chipset VARCHAR(20) NOT NULL,
+    form_factor VARCHAR(30) NOT NULL,
+    dimensions_mm VARCHAR(30) NOT NULL,
+    Slots_Ram INT(5) NOT NULL,
+    Ram_type VARCHAR(20) NOT NULL,
+    Ram_max_vel INT(10) NOT NULL,
+    Ram_max_cap INT(10) NOT NULL,
+    Pcie_Version VARCHAR(20) NOT NULL,
+    Pcie_x16_slots VARCHAR(20) NOT NULL,
+    m2_slots INT(10) NOT NULL,
+    M2_pcie_version VARCHAR(20) NOT NULL,
+    Sata_ports INT(5) NOT NULL,
+    Image_Data MEDIUMBLOB,
+    PRIMARY KEY (MB_ID)
+);
+
+CREATE TABLE MEM_RAM (
+    MEM_RAM_ID INT,
+    Name VARCHAR(50) NOT NULL,
+    Manufacturer CHAR(30),
+    RAM_type VARCHAR(20),
+    Velocity INT(10),
+    Capacity INT(10),
+    Cas_Latency VARCHAR(20),
+    Image_Data MEDIUMBLOB,
+    PRIMARY KEY (MEM_RAM_ID)
+);
+
+CREATE TABLE GPU (
+    GPU_ID INT(5),
+    Name VARCHAR(50) NOT NULL,
+    Manufacturer CHAR(30),
+    Pcie_version VARCHAR(20) NOT NULL,
+    Pcie_lanes INT(5) NOT NULL,
+    Tgp INT(10) NOT NULL,
+    Length_mm INT(10) NOT NULL,
+    Ocupated_slots NUMERIC(4,1) NOT NULL,
+    Pcie_8pin_Count INT DEFAULT 0,
+    Pcie_6pin_Count INT DEFAULT 0,
+    Pcie_12vhpwr_Count INT DEFAULT 0,
+    Image_Data MEDIUMBLOB,
+    PRIMARY KEY (GPU_ID)
+);
+
+CREATE TABLE SSD (
+    SSD_ID INT(5),
+    Name VARCHAR(50) NOT NULL,
+    Manufacturer CHAR(30),
+    Interface VARCHAR(20) NOT NULL,
+    Format VARCHAR(20) NOT NULL,
+    Capacity INT(10) NOT NULL,
+    Image_Data MEDIUMBLOB,
+    PRIMARY KEY (SSD_ID)
+);
+
+CREATE TABLE POWER (
+    POWER_ID INT(5) AUTO_INCREMENT,
+    Name VARCHAR(50) NOT NULL,
+    Manufacturer CHAR(30),
+    Pot_Watts INT(6),
+    Efficiency NUMERIC(4,1) NOT NULL,
+    Modular BOOLEAN NOT NULL,
+    Cpu_8pin_Count INT(10) NOT NULL,
+    Pcie_8pin_Count INT(10) NOT NULL,
+    Pcie_12vhpwr_Count INT(10) NOT NULL,
+    sata_power_count INT(5) NOT NULL,
+    Image_Data MEDIUMBLOB,
+    Pcie_6pin_Count INT DEFAULT 0,
+    PRIMARY KEY (POWER_ID)
+);
+
+CREATE TABLE Project (
+    ID INT(5) AUTO_INCREMENT,
+    User_id INT(5),
+    Project_Name VARCHAR(50),
+    Description VARCHAR(200),
+    MB_ID INT(5),
+    CPU_ID INT(5),
+    GPU_ID INT(5),
+    MEM_RAM_ID INT(5),
+    SSD_ID INT(5),
+    POWER_ID INT(5),
+    Compatibility BOOLEAN NOT NULL,
+    PRIMARY KEY (ID),
+    FOREIGN KEY (User_id) REFERENCES User(User_ID),
+    FOREIGN KEY (MB_ID) REFERENCES MotherBoard(MB_ID),
+    FOREIGN KEY (CPU_ID) REFERENCES CPU(CPU_ID),
+    FOREIGN KEY (GPU_ID) REFERENCES GPU(GPU_ID),
+    FOREIGN KEY (MEM_RAM_ID) REFERENCES MEM_RAM(MEM_RAM_ID),
+    FOREIGN KEY (SSD_ID) REFERENCES SSD(SSD_ID),
+    FOREIGN KEY (POWER_ID) REFERENCES POWER(POWER_ID)
+);
+
+CREATE TABLE Comments (
+    ID INT AUTO_INCREMENT,
+    UserID INT(5),
+    ComponentID INT(5),
+    ComponentType ENUM('CPU', 'Placa Mãe', 'Memória RAM', 'GPU', 'SSD', 'Fonte', 'Site'),
+    Content VARCHAR(600) NOT NULL,
+    PRIMARY KEY (ID),
+    FOREIGN KEY (UserID) REFERENCES User(User_ID)
+);
+
+CREATE OR REPLACE VIEW Users AS
+SELECT
+    User_ID AS ID,
+    Name,
+    Email,
+    Password,
+    ProjectNumber
+FROM User;
+
+CREATE OR REPLACE VIEW `Mother Board` AS
+SELECT * FROM MotherBoard;

@@ -50,30 +50,44 @@
                 <h3>Tipo</h3>
                 <form>
                     <input type="radio" id="t1" name="tipo" value="CPU">
-                    <label for="t1">CPU</label>
-                    <input type="radio" id="t2" name="tipo" value="GPU">
-                    <label for="t2">GPU</label>
-                    <input type="radio" id="t3" name="tipo" value="Placa_mae">
-                    <label for="t3">Placa-mãe</label>
-                    <input type="radio" id="t4" name="tipo" value="Memoria_RAM">
-                    <label for="t4">RAM</label>
-                    <input type="radio" id="t5" name="tipo" value="SSD">
-                    <label for="t5">HD/SSD</label>
-                    <input type="radio" id="t6" name="tipo" value="Fonte">
-                    <label for="t6">Fonte</label>
+<label for="t1">CPU</label>
+
+<input type="radio" id="t2" name="tipo" value="GPU">
+<label for="t2">GPU</label>
+
+<input type="radio" id="t3" name="tipo" value="MOTHERBOARD">
+<label for="t3">Placa-mãe</label>
+
+<input type="radio" id="t4" name="tipo" value="RAM">
+<label for="t4">RAM</label>
+
+<input type="radio" id="t5" name="tipo" value="SSD">
+<label for="t5">HD/SSD</label>
+
+<input type="radio" id="t6" name="tipo" value="POWER">
+<label for="t6">Fonte</label>
                 </form>
             </details>
         </aside>
 
         <section class="pesquisa-conteudo">
-            <form class="pesquisa-form" action="/pesquisar" method="get">
-                <input type="search" name="pesquisar" placeholder="O que você está procurando?" required>
+            <form class="pesquisa-form" id="search-form">
+                <input 
+                    type="search" 
+                    id="search-input"
+                    name="pesquisar" 
+                    placeholder="O que você está procurando?"
+                >
                 <button type="submit">Buscar</button>
             </form>
-            
-            </section>
+
+            <p id="search-message"></p>
+
+            <section id="components-results" class="components-results"></section>
+        </section>
 
     </main>
 
+    <script src="js/search.js"></script>
 </body>
 </html>

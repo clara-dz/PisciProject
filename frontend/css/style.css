@@ -447,3 +447,47 @@ p a:hover {
     color: rgb(22, 32, 43);
     line-height: 1.5;
 }
+
+.components-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.component-card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 1rem;
+    background: #fff;
+}
+
+.component-image {
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+
+.component-image-placeholder {
+    width: 100%;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eee;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    color: #666;
+}
+
+.component-info h3 {
+    margin-bottom: 0.5rem;
+}
+
+.add-component-button {
+    margin-top: 0.75rem;
+    width: 100%;
+    padding: 0.6rem;
+    cursor: pointer;
+}

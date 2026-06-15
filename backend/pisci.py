@@ -14,7 +14,8 @@ def create_app():
     # Mantendo a sua excelente configuração de separação do Frontend
     app = Flask(__name__, 
                 template_folder="../frontend", 
-                static_folder="../frontend")
+                static_folder="../frontend",
+                static_url_path="")
 
     # Configuração da chave secreta (usada pelas sessions)
     # Dica: adicionei um fallback caso o .env ainda não esteja ativo, 
@@ -31,6 +32,10 @@ def create_app():
     @app.route('/')
     def index():
         return render_template('index.html')
+    
+    @app.route('/<path:page>')
+    def frontend_page(page):
+        return render_template(page)
 
     return app
 

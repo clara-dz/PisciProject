@@ -3,14 +3,12 @@ from mysql.connector import Error
 
 class DatabaseConnection:
     def __init__(self):
-        # Em um projeto real, escondemos isso em um arquivo .env depois!
         self.host = 'localhost'
-        self.database = 'nome_do_seu_banco' # Ex: piscis_db
-        self.user = 'root'
-        self.password = 'sua_senha_do_mysql'
+        self.database = 'Piscis'
+        self.user = 'piscis_user'
+        self.password = 'Piscis@2026'
 
     def get_connection(self):
-        """Abre a porta com o banco de dados e retorna a conexão."""
         try:
             connection = mysql.connector.connect(
                 host=self.host,
