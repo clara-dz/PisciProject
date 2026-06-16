@@ -28,13 +28,13 @@ class AuthService:
             flask_session['novo_projeto'] = backup_temporaria
         
         flask_session['user_id'] = user_db['User_ID']
-        flask_session['user_name'] = user_db['Name'] 
+        flask_session['user_name'] = user_db['Username'] 
         
         flask_session.modified = True
 
         return {
             "sucesso": True, 
-            "mensagem": f"Bem-vindo(a), {user_db['Name']}!"
+            "mensagem": f"Bem-vindo(a), {user_db['Username']}!"
         }
     
     def logout(self, flask_session):

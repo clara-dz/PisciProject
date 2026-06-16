@@ -5,8 +5,8 @@ class DatabaseConnection:
     def __init__(self):
         self.host = 'localhost'
         self.database = 'Piscis'
-        self.user = 'piscis_user'
-        self.password = 'Piscis@2026'
+        self.user = 'root'
+        self.password = '1234'
 
     def get_connection(self):
         try:
