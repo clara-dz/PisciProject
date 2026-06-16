@@ -29,6 +29,15 @@ def start_project():
         "detalhes": resultado["detalhes"],
     }), 200
 
+@builder_bp.route('/discard', methods=['POST'])
+def discard_project():
+    resultado = project_service.discard_current_project(session)
+
+    return jsonify({
+        "status": "sucesso",
+        "message": resultado["mensagem"]
+    }), 200
+
 
 @builder_bp.route('/add-component', methods=['POST'])
 def add_component():

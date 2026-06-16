@@ -1,6 +1,5 @@
 from decimal import Decimal
 from datetime import date, datetime
-
 from database.repository import ComponentRepository
 
 
@@ -276,6 +275,18 @@ class ProjectService:
         return {
             chave: self._json_safe_value(valor)
             for chave, valor in dados.items()
+        }
+    
+    def discard_current_project(self, flask_session):
+        flask_session.pop("novo_projeto", None)
+        flask_session.pop("project_id", None)
+        flask_session.pop("project_name", None)
+        flask_session.pop("project_description", None)
+        flask_session.modified = True
+
+        return {
+            "sucesso": True,
+            "mensagem": "Rascunho do projeto descartado."
         }
 
     def _check_compatibility(self, projeto):

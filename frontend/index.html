@@ -4,38 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Início</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 
 <body>
     <header>
         <a href="index.html" class="logo">PISCIS</a>
+
         <nav class="navbar">
-            <a href="pesquisar.html">Pesquisar</a> 
-            <a href="forum.html">Fórum</a> 
+            <a href="pesquisar.html">Pesquisar</a>
+            <a href="montarprojeto.html">Montar projeto</a>
+            <a href="forum.html">Fórum</a>
             <a href="login.html">Login</a>
         </nav>
     </header>
 
-   <section class="projeto" id="projeto">
-        <div class="projeto">
+    <main class="home-main">
+        <section class="new-project-section">
+            <h1>Bem-vindo ao PISCIS</h1>
+            <p>Monte, salve e edite seus projetos de computador.</p>
+
             <a href="montarprojeto.html" class="botao">Novo projeto</a>
-        </div>
-    </section>
+        </section>
 
-    <section class="projetos" id="projetos">
-        <h1> Meus projetos</h1>
+        <section id="my-projects-section" class="my-projects-section" hidden>
+            <h2>Meus projetos</h2>
 
-        <div class="box">
-            <div class="image">
-                <img src="img/1000017703.jpg" alt="">
+            <p id="my-projects-message"></p>
+
+            <div id="my-projects-list" class="my-projects-list">
+                <!-- Projetos salvos do usuário aparecem aqui pelo JavaScript -->
             </div>
-            <div class="nome_projeto"> 
-                <h3>Primeiro projeto</h3>
-            </div>
-        </div>
+        </section>
+    </main>
 
-    </section>
-
+    <script src="js/myprojects.js?v=1"></script>
 </body>
 </html>

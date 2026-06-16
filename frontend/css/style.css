@@ -689,3 +689,87 @@ p a:hover {
     font-weight: 700;
     margin-top: 0.8rem;
 }
+
+/* ============================= */
+/* PÁGINA INICIAL */
+/* ============================= */
+
+.home-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 9%;
+}
+
+.new-project-section {
+    text-align: center;
+    background: #ffffff;
+    border-radius: 1.2rem;
+    padding: 3rem 2rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .1);
+    margin-bottom: 3rem;
+}
+
+.new-project-section h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.new-project-section p {
+    margin-bottom: 1.5rem;
+}
+
+.my-projects-section {
+    margin-top: 3rem;
+}
+
+.my-projects-section h2 {
+    text-align: center;
+    font-size: 2.8rem;
+    margin-bottom: 2rem;
+}
+
+#my-projects-message {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.my-projects-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+}
+
+.saved-project-card {
+    background: #ffffff;
+    border-radius: 1.2rem;
+    padding: 2rem;
+    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .1);
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.saved-project-card h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.saved-project-description {
+    min-height: 4rem;
+    margin-bottom: 1rem;
+}
+
+.project-compatible {
+    color: #176c35;
+    font-weight: 800;
+}
+
+.project-incompatible {
+    color: #8a1f1f;
+    font-weight: 800;
+}
+
+.load-project-button {
+    width: 100%;
+    margin-top: 1rem;
+}

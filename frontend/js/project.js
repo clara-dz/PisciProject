@@ -9,6 +9,10 @@ const checkCompatibilityButton = document.getElementById("check-compatibility-bu
 
 let isSavingProject = false;
 
+let projectWasSaved = false;
+let isNavigatingToSearch = false;
+let isClearingProject = false;
+
 const SLOT_LABELS = {
     CPU: "CPU",
     MotherBoard: "Placa-mãe",
@@ -481,6 +485,9 @@ async function removeComponent(slot) {
 }
 
 async function clearProject() {
+
+    isClearingProject = true;
+
     try {
         setSaveProjectMessage("");
 
@@ -537,6 +544,8 @@ async function saveProject(event) {
             })
         });
 
+        projectWasSaved = true;
+
         await loadCurrentProject();
 
         setSaveProjectMessage(data.message || "Projeto salvo com sucesso.");
@@ -568,6 +577,12 @@ function setupRemoveButtons() {
 function setupEvents() {
     setupRemoveButtons();
 
+    document.querySelectorAll(".add-components-panel a").forEach(link => {
+    link.addEventListener("click", () => {
+        isNavigatingToSearch = true;
+    });
+});
+
     if (clearProjectButton) {
         clearProjectButton.addEventListener("click", clearProject);
     }
@@ -580,6 +595,30 @@ function setupEvents() {
         saveProjectForm.addEventListener("submit", saveProject);
     }
 }
+
+function discardUnsavedProjectOnExit() {
+    if (projectWasSaved || isNavigatingToSearch || isClearingProject) {
+        return;
+    }
+
+    const payload = JSON.stringify({});
+
+    if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: "application/json" });
+        navigator.sendBeacon("/project/discard", blob);
+    } else {
+        fetch("/project/discard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: payload,
+            keepalive: true
+        });
+    }
+}
+
+window.addEventListener("pagehide", discardUnsavedProjectOnExit);
 
 window.addEventListener("load", async () => {
     setupEvents();
