@@ -491,3 +491,106 @@ p a:hover {
     padding: 0.6rem;
     cursor: pointer;
 }
+
+.project-builder-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: 24px;
+}
+
+.add-components-panel,
+.chosen-components-panel {
+    background: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.add-components-panel .componentes {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.add-components-panel .botao {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.chosen-components-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.project-slot-card {
+    border: 1px dashed #cfcfcf;
+    border-radius: 12px;
+    padding: 1rem;
+    background: #fafafa;
+    min-height: 180px;
+}
+
+.project-slot-card.has-component {
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+.selected-component-card {
+    height: 100%;
+}
+
+.empty-selected-component {
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    color: #666;
+}
+
+.empty-selected-component h4 {
+    margin-bottom: 0.5rem;
+}
+
+.project-slot-card > .remove-slot-button {
+    margin-top: 0.75rem;
+    width: 100%;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.selected-component-card .remove-slot-button {
+    margin-top: 0.75rem;
+    width: 100%;
+    padding: 0.6rem;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+}
+
+#save-project-message {
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+@media (max-width: 1000px) {
+    .project-builder-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .chosen-components-grid {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .chosen-components-grid {
+        grid-template-columns: 1fr;
+    }
+}
