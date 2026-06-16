@@ -4,51 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fórum</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=7">
 </head>
+
 <body>
     <header>
         <a href="index.html" class="logo">PISCIS</a>
+
         <nav class="navbar">
-            <a href="pesquisar.html">Pesquisar</a> 
-            <a href="forum.html">Fórum</a> 
+            <a href="pesquisar.html">Pesquisar</a>
+            <a href="montarprojeto.html">Montar projeto</a>
+            <a href="forum.html">Fórum</a>
             <a href="login.html">Login</a>
         </nav>
     </header>
 
-   <main class="forum-container">
+    <main class="forum-container">
 
-    <!-- Caixa de novo comentário -->
-    <section class="forum-box">
-        <h2>Fórum</h2>
+        <section class="forum-box">
+            <h2>Fórum</h2>
 
-        <form class="comentario-form">
-            <textarea placeholder="Compartilhe suas ideias com a comunidade..." rows="5"></textarea>
-            <button type="submit">Publicar</button>
-        </form>
-    </section>
+            <p id="forum-message"></p>
 
-    <!-- Lista de comentários -->
-    <section class="comentarios">
-        <h3>Comentários recentes</h3>
+            <form id="comentario-form" class="comentario-form">
+                <label for="comment-topic">Categoria do comentário</label>
+                <select id="comment-topic" required>
+                    <option value="">Selecione uma categoria</option>
+                    <option value="CPU">CPU</option>
+                    <option value="Placa Mãe">Placa-mãe</option>
+                    <option value="Memória RAM">Memória RAM</option>
+                    <option value="GPU">GPU</option>
+                    <option value="SSD">SSD</option>
+                    <option value="Fonte">Fonte</option>
+                    <option value="Site">Site</option>
+                </select>
 
-        <article class="comentario">
-            <h4>Linus Torvalds</h4>
-            <p>A computer is like air conditioning – it becomes useless when you open Windows.</p>
-        </article>
+                <label for="comment-content">Comentário</label>
+                <textarea
+                    id="comment-content"
+                    placeholder="Compartilhe suas ideias com a comunidade..."
+                    rows="5"
+                    required
+                ></textarea>
 
-        <article class="comentario">
-            <h4>Richard Stallman</h4>
-            <p>Free software is a matter of liberty, not price.</p>
-        </article>
+                <button type="submit">Publicar</button>
+            </form>
+        </section>
 
-        <article class="comentario">
-            <h4>Mariana Souza</h4>
-            <p>Excelente plataforma para iniciantes.</p>
-        </article>
+        <section class="comentarios">
+            <h3>Comentários recentes</h3>
 
-    </section>
+            <div id="comments-list">
+                <!-- Comentários reais aparecem aqui pelo JavaScript -->
+            </div>
+        </section>
 
-</main>
+    </main>
+
+    <script src="js/forum.js?v=1"></script>
 </body>
 </html>

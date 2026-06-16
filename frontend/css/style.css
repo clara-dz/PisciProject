@@ -773,3 +773,42 @@ p a:hover {
     width: 100%;
     margin-top: 1rem;
 }
+
+.comentario-form select {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.6rem;
+    border: .1rem solid #ccc;
+    border-radius: .5rem;
+    margin-bottom: 1rem;
+    background: white;
+}
+
+#forum-message {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+#comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.comment-topic {
+    display: inline-block;
+    margin-bottom: .8rem;
+    padding: .4rem .8rem;
+    border-radius: 999px;
+    background: rgb(209, 209, 214);
+    color: rgb(22, 32, 43);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.empty-comments-message {
+    text-align: center;
+    font-weight: 700;
+    color: #666;
+}

@@ -415,9 +415,10 @@ class ForumRepository:
                 SELECT
                     c.ID,
                     c.Content,
-                    u.Name AS AuthorName
+                    c.ComponentType,
+                    u.Username AS AuthorName
                 FROM Comments c
-                JOIN Users u ON c.UserID = u.ID
+                JOIN User u ON c.UserID = u.User_ID
                 ORDER BY c.ID DESC
                 LIMIT 15
             """
