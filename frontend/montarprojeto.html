@@ -11,41 +11,86 @@
     <header>
         <a href="index.html" class="logo">PISCIS</a>
         <nav class="navbar">
-            <a href="pesquisar.html">Pesquisar</a> 
-            <a href="forum.html">Fórum</a> 
+            <a href="pesquisar.html">Pesquisar</a>
+            <a href="montarprojeto.html">Montar projeto</a>
+            <a href="forum.html">Fórum</a>
             <a href="login.html">Login</a>
         </nav>
     </header>
 
-    <main>
+    <main class="project-main">
         <section>
             <h2>Monte seu projeto</h2>
-        </section>
-
-    <section>
-    <h3>Selecione o componente</h3>
-
-   <div class="componentes">
-    <a href="pesquisar.html?tipo=cpu" class="botao">CPU</a>
-    <a href="pesquisar.html?tipo=gpu" class="botao">GPU</a>
-    <a href="pesquisar.html?tipo=ram" class="botao">RAM</a>
-    <a href="pesquisar.html?tipo=placa-mae" class="botao">Placa-mãe</a>
-    <a href="pesquisar.html?tipo=armazenamento" class="botao">HD/SSD</a>
-    <a href="pesquisar.html?tipo=fonte" class="botao">Fonte</a>
-</div>
-</section>
-
-        <section>
-            <button type="button">Verificar compatibilidade</button>
+            <p id="project-message"></p>
         </section>
 
         <section>
-            <button type="button">Desfazer último</button>
-            <button type="button">Limpar tudo</button>
-            <button type="button">Salvar Projeto</button>
+            <h3>Adicionar componentes</h3>
+
+            <div class="componentes">
+                <a href="pesquisar.html?tipo=CPU" class="botao">Adicionar CPU</a>
+                <a href="pesquisar.html?tipo=GPU" class="botao">Adicionar GPU</a>
+                <a href="pesquisar.html?tipo=RAM" class="botao">Adicionar RAM</a>
+                <a href="pesquisar.html?tipo=MOTHERBOARD" class="botao">Adicionar Placa-mãe</a>
+                <a href="pesquisar.html?tipo=SSD" class="botao">Adicionar HD/SSD</a>
+                <a href="pesquisar.html?tipo=POWER" class="botao">Adicionar Fonte</a>
+            </div>
         </section>
 
+        <section class="project-slots">
+            <h3>Componentes escolhidos</h3>
+
+            <div class="project-slot" data-slot="CPU">
+                <strong>CPU:</strong> <span id="slot-CPU">Nenhum componente selecionado</span>
+                <button type="button" class="remove-slot-button" data-slot="CPU">Remover</button>
+            </div>
+
+            <div class="project-slot" data-slot="MotherBoard">
+                <strong>Placa-mãe:</strong> <span id="slot-MotherBoard">Nenhum componente selecionado</span>
+                <button type="button" class="remove-slot-button" data-slot="MotherBoard">Remover</button>
+            </div>
+
+            <div class="project-slot" data-slot="GPU">
+                <strong>GPU:</strong> <span id="slot-GPU">Nenhum componente selecionado</span>
+                <button type="button" class="remove-slot-button" data-slot="GPU">Remover</button>
+            </div>
+
+            <div class="project-slot" data-slot="MEM_RAM">
+                <strong>RAM:</strong> <span id="slot-MEM_RAM">Nenhum componente selecionado</span>
+                <button type="button" class="remove-slot-button" data-slot="MEM_RAM">Remover</button>
+            </div>
+
+            <div class="project-slot" data-slot="SSD">
+                <strong>HD/SSD:</strong> <span id="slot-SSD">Nenhum componente selecionado</span>
+                <button type="button" class="remove-slot-button" data-slot="SSD">Remover</button>
+            </div>
+
+            <div class="project-slot" data-slot="Power">
+                <strong>Fonte:</strong> <span id="slot-Power">Nenhum componente selecionado</span>
+                <button type="button" class="remove-slot-button" data-slot="Power">Remover</button>
+            </div>
+        </section>
+
+        <section class="compatibility-section">
+            <button type="button" id="check-compatibility-button">Verificar compatibilidade</button>
+            <div id="compatibility-result"></div>
+        </section>
+
+        <section class="save-project-section">
+            <h3>Salvar projeto</h3>
+
+            <form id="save-project-form">
+                <input type="text" id="project-name" placeholder="Nome do projeto" required>
+                <textarea id="project-description" placeholder="Descrição do projeto"></textarea>
+                <button type="submit">Salvar Projeto</button>
+            </form>
+        </section>
+
+        <section>
+            <button type="button" id="clear-project-button">Limpar tudo</button>
+        </section>
     </main>
 
+    <script src="js/project.js"></script>
 </body>
 </html>

@@ -3,31 +3,75 @@ const searchInput = document.getElementById("search-input");
 const resultsContainer = document.getElementById("components-results");
 const message = document.getElementById("search-message");
 
+function normalizeType(type) {
+    const map = {
+        CPU: "CPU",
+        GPU: "GPU",
+        RAM: "RAM",
+        MEM_RAM: "RAM",
+        MOTHERBOARD: "MOTHERBOARD",
+        MotherBoard: "MOTHERBOARD",
+        PLACA_MAE: "MOTHERBOARD",
+        SSD: "SSD",
+        POWER: "POWER",
+        Power: "POWER",
+        FONTE: "POWER"
+    };
+
+    return map[type] || type || "";
+}
+
+function getTypeFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return normalizeType(params.get("tipo") || params.get("type") || "");
+}
+
+function selectTypeFromUrl() {
+    const typeFromUrl = getTypeFromUrl();
+    if (!typeFromUrl) return;
+
+    const radio = document.querySelector(`input[name="tipo"][value="${typeFromUrl}"]`);
+    if (radio) radio.checked = true;
+}
+
 function getSelectedType() {
     const selectedType = document.querySelector('input[name="tipo"]:checked');
+    return selectedType ? selectedType.value : "";
+}
 
-    if (!selectedType) {
-        return "";
+async function requestJson(url, options = {}) {
+    const response = await fetch(url, {
+        credentials: "same-origin",
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        },
+        ...options
+    });
+
+    let data = {};
+    try {
+        data = await response.json();
+    } catch (error) {
+        data = {};
     }
 
-    return selectedType.value;
+    if (!response.ok || data.status === "erro") {
+        throw new Error(data.message || "Erro ao conectar com o servidor.");
+    }
+
+    return data;
 }
 
 async function searchComponents(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
     const searchTerm = searchInput.value.trim();
     const selectedType = getSelectedType();
-
     const params = new URLSearchParams();
 
-    if (searchTerm) {
-        params.append("q", searchTerm);
-    }
-
-    if (selectedType) {
-        params.append("type", selectedType);
-    }
+    if (searchTerm) params.append("q", searchTerm);
+    if (selectedType) params.append("type", selectedType);
 
     const url = `/catalog/components?${params.toString()}`;
 
@@ -35,19 +79,11 @@ async function searchComponents(event) {
     resultsContainer.innerHTML = "";
 
     try {
-        const response = await fetch(url);
-        const result = await response.json();
-
-        if (!response.ok || result.status !== "sucesso") {
-            message.textContent = result.message || "Erro ao buscar componentes.";
-            return;
-        }
-
-        renderComponents(result.data);
-
+        const result = await requestJson(url, { method: "GET" });
+        renderComponents(result.data || []);
     } catch (error) {
         console.error(error);
-        message.textContent = "Erro ao conectar com o servidor.";
+        message.textContent = error.message;
     }
 }
 
@@ -78,8 +114,8 @@ function renderComponents(components) {
                 <p><strong>Categoria:</strong> ${component.Categoria}</p>
                 <p><strong>ID:</strong> ${component.ID}</p>
 
-                <button 
-                    type="button" 
+                <button
+                    type="button"
                     class="add-component-button"
                     data-id="${component.ID}"
                     data-category="${component.Categoria}"
@@ -93,22 +129,39 @@ function renderComponents(components) {
     });
 }
 
+async function addComponentToProject(componentId, category) {
+    message.textContent = "Adicionando componente ao projeto...";
+
+    try {
+        await requestJson("/project/add-component", {
+            method: "POST",
+            body: JSON.stringify({
+                component_id: componentId,
+                tipo: category
+            })
+        });
+
+        window.location.href = "montarprojeto.html";
+    } catch (error) {
+        console.error(error);
+        message.textContent = error.message;
+    }
+}
+
 searchForm.addEventListener("submit", searchComponents);
 
-document.querySelectorAll('input[name="tipo"]').forEach(radio => {
-    radio.addEventListener("change", async () => {
-        const fakeEvent = {
-            preventDefault: () => {}
-        };
+resultsContainer.addEventListener("click", event => {
+    const button = event.target.closest(".add-component-button");
+    if (!button) return;
 
-        await searchComponents(fakeEvent);
-    });
+    addComponentToProject(button.dataset.id, button.dataset.category);
+});
+
+document.querySelectorAll('input[name="tipo"]').forEach(radio => {
+    radio.addEventListener("change", searchComponents);
 });
 
 window.addEventListener("load", async () => {
-    const fakeEvent = {
-        preventDefault: () => {}
-    };
-
-    await searchComponents(fakeEvent);
+    selectTypeFromUrl();
+    await searchComponents();
 });

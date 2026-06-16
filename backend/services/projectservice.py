@@ -1,314 +1,344 @@
-from services.compatibilityservice import CompatibilityService
+from decimal import Decimal
+from datetime import date, datetime
+
 from database.repository import ComponentRepository
-from models.cpu import CPU
-from models.gpu import GPU
-from models.motherboard import MotherBoard
-from models.power import Power
-from models.project import Project
-from models.ram import MEM_RAM
-from models.ssd import SSD
+
 
 class ProjectService:
+    """Serviço responsável pelo rascunho do projeto salvo na sessão Flask."""
+
+    SLOT_KEYS = {
+        "CPU": "CPU",
+        "GPU": "GPU",
+        "MOTHERBOARD": "MotherBoard",
+        "PLACA_MAE": "MotherBoard",
+        "PLACA-MAE": "MotherBoard",
+        "RAM": "MEM_RAM",
+        "MEM_RAM": "MEM_RAM",
+        "MEMORIA_RAM": "MEM_RAM",
+        "SSD": "SSD",
+        "ARMAZENAMENTO": "SSD",
+        "POWER": "Power",
+        "FONTE": "Power",
+        "Power": "Power",
+        "MotherBoard": "MotherBoard",
+    }
+
+    EMPTY_PROJECT = {
+        "MotherBoard": None,
+        "CPU": None,
+        "GPU": None,
+        "MEM_RAM": None,
+        "SSD": None,
+        "Power": None,
+        "Compatibility": True,
+    }
+
     def __init__(self):
-        self.comp_service = CompatibilityService()
         self.repository = ComponentRepository()
 
-    def start_new_project(self, flask_session): #-------------------------------------------------------------------------------------------
-        """
-        Zera qualquer projeto anterior da sessão e inicia um rascunho limpo.
-        """
-        flask_session['novo_projeto'] = {
-            'MotherBoard': None, 'CPU': None, 'GPU': None, 
-            'MEM_RAM': None, 'SSD': None, 'Power': None, 'Compatibility': True
-        }
-        
-        flask_session['project_id'] = None
-        flask_session['project_name'] = "Rascunho Novo"
-        flask_session['project_description'] = ""
+    def _normalize_tipo(self, tipo):
+        if not tipo:
+            return None
+        return self.SLOT_KEYS.get(str(tipo).upper()) or self.SLOT_KEYS.get(str(tipo))
 
-        # Avisa o Flask para gravar essa mudança no cookie do usuário
-        flask_session.modified = True 
-        
-        return {
-            "sucesso": True,
-            "projeto": flask_session['novo_projeto']
-        }
-
-    def add_component(self, component_id, tipo, flask_session): # ------------------------------------------------------------------------
-
-        # REGRAS DE NEGOCIO BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-        
-        if projeto_atual_dict[tipo]:
-            return {"sucesso": True, "message": "Esse tipo de componente já existe no projeto"}
-        
-        # BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-
-        if 'novo_projeto' not in flask_session:
+    def _ensure_project(self, flask_session):
+        if "novo_projeto" not in flask_session:
             self.start_new_project(flask_session)
-        
-        projeto_atual_dict = flask_session['novo_projeto']
-        projeto_atual_dict[tipo] = component_id
+        return flask_session["novo_projeto"]
 
-        projeto_objeto= self._montar_objeto_projeto(projeto_atual_dict, flask_session)
-
-        relatorio = self.comp_service.check_compatibility(projeto_objeto)
-
-        projeto_atual_dict['Compatibility'] = projeto_objeto.Compatibility
-
-        flask_session['novo_projeto'] = projeto_atual_dict
+    def start_new_project(self, flask_session):
+        flask_session["novo_projeto"] = self.EMPTY_PROJECT.copy()
+        flask_session["project_id"] = None
+        flask_session["project_name"] = "Rascunho Novo"
+        flask_session["project_description"] = ""
         flask_session.modified = True
-        
-        return {
-            "sucesso": True, 
-            "projeto": projeto_atual_dict, 
-            "compatibilidade": relatorio
-        }
-    
-    def remove_component(self, tipo, flask_session): # ----------------------------------------------------------------------------------
 
-        if 'novo_projeto' not in flask_session:
-            return {"sucesso": False, "mensagem": "Nenhum projeto ativo."}
-            
-        projeto_atual_dict = flask_session['novo_projeto']
-        projeto_atual_dict[tipo] = None
-        
-        projeto_objeto = self._montar_objeto_projeto(projeto_atual_dict, flask_session)
-        relatorio = self.comp_service.check_compatibility(projeto_objeto)
-        
-        projeto_atual_dict['Compatibility'] = projeto_objeto.Compatibility
-        
-        flask_session['novo_projeto'] = projeto_atual_dict
-        flask_session.modified = True
-        
         return {
             "sucesso": True,
-            "projeto": projeto_atual_dict,
-            "compatibilidade": relatorio
+            "projeto": flask_session["novo_projeto"],
+            "detalhes": self.get_current_project(flask_session)["detalhes"],
         }
-    
-    def save_project(self, flask_session, project_name, description): # -----------------------------------------------------------------
-        """Executa a lógica de Upsert (Insert ou Update)."""
 
-        user_id = flask_session.get('user_id')
+    def add_component(self, component_id, tipo, flask_session):
+        slot = self._normalize_tipo(tipo)
+        if not slot:
+            return {"sucesso": False, "mensagem": f"Tipo de componente inválido: {tipo}"}
+
+        projeto = self._ensure_project(flask_session)
+
+        try:
+            component_id = int(component_id)
+        except (TypeError, ValueError):
+            return {"sucesso": False, "mensagem": "ID do componente inválido."}
+
+        if projeto.get(slot) is not None:
+            return {
+                "sucesso": False,
+                "mensagem": f"O projeto já possui um componente no slot {slot}. Remova o atual antes de adicionar outro.",
+                "projeto": projeto,
+                "compatibilidade": self._check_compatibility(projeto),
+                "detalhes": self._get_project_details(projeto),
+            }
+
+        projeto[slot] = component_id
+        relatorio = self._check_compatibility(projeto)
+        projeto["Compatibility"] = relatorio["is_compatible"]
+
+        flask_session["novo_projeto"] = projeto
+        flask_session.modified = True
+
+        return {
+            "sucesso": True,
+            "projeto": projeto,
+            "compatibilidade": relatorio,
+            "detalhes": self._get_project_details(projeto),
+        }
+
+    def remove_component(self, tipo, flask_session):
+        if "novo_projeto" not in flask_session:
+            return {"sucesso": False, "mensagem": "Nenhum projeto ativo."}
+
+        slot = self._normalize_tipo(tipo)
+        if not slot:
+            return {"sucesso": False, "mensagem": f"Tipo de componente inválido: {tipo}"}
+
+        projeto = flask_session["novo_projeto"]
+        projeto[slot] = None
+
+        relatorio = self._check_compatibility(projeto)
+        projeto["Compatibility"] = relatorio["is_compatible"]
+
+        flask_session["novo_projeto"] = projeto
+        flask_session.modified = True
+
+        return {
+            "sucesso": True,
+            "projeto": projeto,
+            "compatibilidade": relatorio,
+            "detalhes": self._get_project_details(projeto),
+        }
+
+    def save_project(self, flask_session, project_name, description):
+        user_id = flask_session.get("user_id")
         if not user_id:
             return {"sucesso": False, "mensagem": "Usuário não autenticado. Faça login para salvar."}
 
-        projeto_dict = flask_session.get('novo_projeto')
-        if not projeto_dict:
+        projeto = flask_session.get("novo_projeto")
+        if not projeto:
             return {"sucesso": False, "mensagem": "Nenhum projeto ativo para salvar."}
-        
-        if not projeto_dict['CPU'] and not projeto_dict['GPU'] and not projeto_dict['MotherBoard'] and not projeto_dict['SSD'] and not projeto_dict['MEM_RAM'] and not projeto_dict['Power']:
-            return {"sucesso": False, "mensagem": "Um projeto vazio não pode ser salvo"}
 
-        project_id = flask_session.get('project_id') 
+        if not any(projeto.get(slot) for slot in ["CPU", "GPU", "MotherBoard", "SSD", "MEM_RAM", "Power"]):
+            return {"sucesso": False, "mensagem": "Um projeto vazio não pode ser salvo."}
+
+        project_name = project_name or flask_session.get("project_name") or "Projeto sem nome"
+        description = description or ""
+
+        relatorio = self._check_compatibility(projeto)
+        projeto["Compatibility"] = relatorio["is_compatible"]
+
+        project_id = flask_session.get("project_id")
 
         if project_id:
-            # Já existe: UPDATE
             self.repository.update_project(
                 project_id=project_id,
                 name=project_name,
                 description=description,
-                cpu_id=projeto_dict.get('CPU'),
-                mb_id=projeto_dict.get('MotherBoard'),
-                gpu_id=projeto_dict.get('GPU'),
-                ram_id=projeto_dict.get('MEM_RAM'),
-                ssd_id=projeto_dict.get('SSD'),
-                power_id=projeto_dict.get('Power'),
-                compatibility=projeto_dict.get('Compatibility')
+                cpu_id=projeto.get("CPU"),
+                mb_id=projeto.get("MotherBoard"),
+                gpu_id=projeto.get("GPU"),
+                ram_id=projeto.get("MEM_RAM"),
+                ssd_id=projeto.get("SSD"),
+                power_id=projeto.get("Power"),
+                compatibility=projeto.get("Compatibility"),
             )
             mensagem = "Projeto atualizado com sucesso!"
         else:
-            # É novo: INSERT
             novo_id = self.repository.insert_project(
                 user_id=user_id,
                 name=project_name,
                 description=description,
-                cpu_id=projeto_dict.get('CPU'),
-                mb_id=projeto_dict.get('MotherBoard'),
-                gpu_id=projeto_dict.get('GPU'),
-                ram_id=projeto_dict.get('MEM_RAM'),
-                ssd_id=projeto_dict.get('SSD'),
-                power_id=projeto_dict.get('Power'),
-                compatibility=projeto_dict.get('Compatibility')
+                cpu_id=projeto.get("CPU"),
+                mb_id=projeto.get("MotherBoard"),
+                gpu_id=projeto.get("GPU"),
+                ram_id=projeto.get("MEM_RAM"),
+                ssd_id=projeto.get("SSD"),
+                power_id=projeto.get("Power"),
+                compatibility=projeto.get("Compatibility"),
             )
-            flask_session['project_id'] = novo_id
+            flask_session["project_id"] = novo_id
             mensagem = "Novo projeto salvo com sucesso!"
 
-        flask_session['project_name'] = project_name
-        flask_session['project_description'] = description
+        flask_session["project_name"] = project_name
+        flask_session["project_description"] = description
+        flask_session["novo_projeto"] = projeto
         flask_session.modified = True
 
-        return {"sucesso": True, "mensagem": mensagem, "project_id": flask_session['project_id']}
+        return {"sucesso": True, "mensagem": mensagem, "project_id": flask_session["project_id"]}
 
     def load_project(self, project_id, flask_session):
-        """Carrega um projeto do banco de dados e o coloca na sessão atual."""
-        user_id = flask_session.get('user_id')
+        user_id = flask_session.get("user_id")
         if not user_id:
             return {"sucesso": False, "mensagem": "Usuário não autenticado."}
 
         projeto_db = self.repository.buscar_projeto(project_id, user_id)
-        
         if not projeto_db:
-            return {"sucesso": False, "mensagem": "Projeto não encontrado ou você não tem permissão para acessá-lo."}
+            return {"sucesso": False, "mensagem": "Projeto não encontrado ou sem permissão."}
 
-        flask_session['project_id'] = projeto_db['ID']
-        flask_session['project_name'] = projeto_db['Project_Name']
-        flask_session['project_description'] = projeto_db['Description']
-        
-        flask_session['novo_projeto'] = {
-            'CPU': projeto_db['CPU_ID'],
-            'MotherBoard': projeto_db['MB_ID'],
-            'GPU': projeto_db['GPU_ID'],
-            'MEM_RAM': projeto_db['MEM_RAM_ID'],
-            'SSD': projeto_db['SSD_ID'],
-            'Power': projeto_db['POWER_ID'],
-            # Converte o tinyint do MySQL de volta para booleano no Python
-            'Compatibility': bool(projeto_db['Compatibility']) 
+        flask_session["project_id"] = projeto_db["ID"]
+        flask_session["project_name"] = projeto_db["Project_Name"]
+        flask_session["project_description"] = projeto_db["Description"]
+        flask_session["novo_projeto"] = {
+            "CPU": projeto_db["CPU_ID"],
+            "MotherBoard": projeto_db["MB_ID"],
+            "GPU": projeto_db["GPU_ID"],
+            "MEM_RAM": projeto_db["MEM_RAM_ID"],
+            "SSD": projeto_db["SSD_ID"],
+            "Power": projeto_db["POWER_ID"],
+            "Compatibility": bool(projeto_db["Compatibility"]),
         }
-        
         flask_session.modified = True
 
         return {
-            "sucesso": True, 
-            "mensagem": "Projeto carregado com sucesso!", 
-            "projeto": flask_session['novo_projeto']
+            "sucesso": True,
+            "mensagem": "Projeto carregado com sucesso!",
+            "projeto": flask_session["novo_projeto"],
+            "detalhes": self._get_project_details(flask_session["novo_projeto"]),
+            "compatibilidade": self._check_compatibility(flask_session["novo_projeto"]),
         }
 
     def get_user_projects(self, flask_session):
-
-        user_id = flask_session.get('user_id')
+        user_id = flask_session.get("user_id")
         if not user_id:
             return {"sucesso": False, "mensagem": "Usuário não autenticado."}
 
         projetos_db = self.repository.listar_projetos_usuario(user_id)
-        
         projetos_formatados = []
+
         for proj in projetos_db:
             projetos_formatados.append({
                 "id": proj["ID"],
                 "name": proj["Project_Name"],
                 "description": proj["Description"],
-                "is_compatible": bool(proj["Compatibility"])
+                "is_compatible": bool(proj["Compatibility"]),
             })
 
+        return {"sucesso": True, "projetos": projetos_formatados}
+
+    def get_current_project(self, flask_session):
+        projeto = self._ensure_project(flask_session)
+        relatorio = self._check_compatibility(projeto)
+        projeto["Compatibility"] = relatorio["is_compatible"]
+        flask_session["novo_projeto"] = projeto
+        flask_session.modified = True
+
         return {
-            "sucesso": True, 
-            "projetos": projetos_formatados
+            "sucesso": True,
+            "projeto": projeto,
+            "detalhes": self._get_project_details(projeto),
+            "compatibilidade": relatorio,
+            "project_id": flask_session.get("project_id"),
+            "project_name": flask_session.get("project_name", "Rascunho Novo"),
+            "project_description": flask_session.get("project_description", ""),
         }
 
-    # ========================================================================
-    # FUNÇÃO DE APOIO (Privada)
-    # ========================================================================
-    def _montar_objeto_projeto(self, projeto_dict,flask_session):
-        
-        cpu_obj, mb_obj, gpu_obj = None, None, None
-        ram_obj, ssd_obj, power_obj = None, None, None
+    def _get_project_details(self, projeto):
+        return {
+            "CPU": self._compact(self.repository.buscar_cpu(projeto.get("CPU"))) if projeto.get("CPU") is not None else None,
+            "MotherBoard": self._compact(self.repository.buscar_placa_mae(projeto.get("MotherBoard"))) if projeto.get("MotherBoard") is not None else None,
+            "GPU": self._compact(self.repository.buscar_gpu(projeto.get("GPU"))) if projeto.get("GPU") is not None else None,
+            "MEM_RAM": self._compact(self.repository.buscar_ram(projeto.get("MEM_RAM"))) if projeto.get("MEM_RAM") is not None else None,
+            "SSD": self._compact(self.repository.buscar_ssd(projeto.get("SSD"))) if projeto.get("SSD") is not None else None,
+            "Power": self._compact(self.repository.buscar_fonte(projeto.get("Power"))) if projeto.get("Power") is not None else None,
+        }
 
-        if projeto_dict.get('CPU'):
-            dados = self.repository.buscar_cpu(projeto_dict['CPU'])
-            if dados: 
-                cpu_obj = CPU(
-                    id=dados['CPU_ID'], 
-                    name=dados['Name'], 
-                    manufacturer=dados['Manufacturer'], 
-                    socket=dados['CPU_Socket'], 
-                    tdp=dados['CPU_TDP'], 
-                    have_gpu=dados['Have_GPU']
-                )
+    def _json_safe_value(self, valor):
+        """Converte valores vindos do MySQL para tipos aceitos pelo jsonify/session."""
+        if isinstance(valor, Decimal):
+            return float(valor)
+        if isinstance(valor, (date, datetime)):
+            return valor.isoformat()
+        if isinstance(valor, bytes):
+            return valor.decode("utf-8", errors="ignore")
+        if isinstance(valor, dict):
+            return {chave: self._json_safe_value(item) for chave, item in valor.items()}
+        if isinstance(valor, (list, tuple)):
+            return [self._json_safe_value(item) for item in valor]
+        return valor
 
-        if projeto_dict.get('MotherBoard'):
-            dados = self.repository.buscar_placa_mae(projeto_dict['MotherBoard'])
-            if dados: 
-                mb_obj = MotherBoard(
-                    id=dados['MB_ID'], 
-                    name=dados['Name'], 
-                    manufacturer=dados['Manufacturer'], 
-                    socket=dados['MB_Socket'], 
-                    chipset=dados['Chipset'], 
-                    form_factor=dados['form_factor'], 
-                    dimensions=dados['dimensions_mm'], 
-                    slots_ram=dados['Slots_Ram'], 
-                    ram_type=dados['Ram_type'], 
-                    ram_max_vel=dados['Ram_max_vel'], 
-                    ram_max_cap=dados['Ram_max_cap'], 
-                    pcie_version=dados['Pcie_Version'], 
-                    pcie_x16_slots=dados['Pcie_x16_slots'], 
-                    m2_slots=dados['m2_slots'], 
-                    m2_pcie_version=dados['m2_pcie_version'], 
-                    sata_ports=dados['Sata_ports']
-                )
+    def _compact(self, dados):
+        if not dados:
+            return None
 
-        if projeto_dict.get('GPU'):
-            dados = self.repository.buscar_gpu(projeto_dict['GPU'])
-            if dados:
-                gpu_obj = GPU(
-                    id=dados['GPU_ID'], 
-                    name=dados['Name'], 
-                    manufacturer=dados['Manufacturer'], 
-                    pcie_version=dados['Pcie_version'], 
-                    pcie_lanes=dados['Pcie_lanes'], 
-                    tgp=dados['Tgp'], 
-                    length=dados['Length_mm'], 
-                    occupied_slots=dados['Ocupated_slots'], 
-                    pcie_8pin=dados['Pcie_8pin_Count'], 
-                    pcie_6pin=dados['Pcie_6pin_Count'], 
-                    pcie_12vhpwr=dados['Pcie_12vhpwr_Count']
-                )
+        dados = dict(dados)
+        dados.pop("Image_Data", None)
 
-        if projeto_dict.get('MEM_RAM'):
-            dados = self.repository.buscar_ram(projeto_dict['MEM_RAM'])
-            if dados:
-                ram_obj = MEM_RAM(
-                    id=dados['MEM_RAM_ID'], 
-                    name=dados['Name'], 
-                    manufacturer=dados['Manufacturer'], 
-                    ram_type=dados['RAM_type'], 
-                    velocity=dados['Velocity'], 
-                    capacity=dados['Capacity'], 
-                    cas_latency=dados['Cas_Latency']
-                )
+        return {
+            chave: self._json_safe_value(valor)
+            for chave, valor in dados.items()
+        }
 
-        if projeto_dict.get('SSD'):
-            dados = self.repository.buscar_ssd(projeto_dict['SSD'])
-            if dados:
-                ssd_obj = SSD(
-                    id=dados['SSD_ID'], 
-                    name=dados['Name'], 
-                    manufacturer=dados['Manufacturer'], 
-                    interface=dados['Interface'], 
-                    format_type=dados['Format'], 
-                    capacity=dados['Capacity']
-                )
+    def _check_compatibility(self, projeto):
+        warnings = []
+        is_compatible = True
 
-        if projeto_dict.get('Power'):
-            dados = self.repository.buscar_fonte(projeto_dict['Power'])
-            if dados:
-                power_obj = Power(
-                    id=dados['POWER_ID'], 
-                    name=dados['Name'], 
-                    manufacturer=dados['Manufacturer'], 
-                    watts=dados['Pot_Watts'], 
-                    efficiency=dados['Efficiency'], 
-                    modular=dados['Modular'], 
-                    cpu_8pin=dados['Cpu_8pin_Count'], 
-                    pcie_8pin=dados['Pcie_8pin_Count'], 
-                    pcie_6pin=dados['Pcie_6pin_Count'], 
-                    pcie_12vhpwr=dados['Pcie_12vhpwr_Count'], 
-                    sata_power=dados['sata_power_count']
-                )
+        cpu = self.repository.buscar_cpu(projeto.get("CPU")) if projeto.get("CPU") is not None else None
+        mb = self.repository.buscar_placa_mae(projeto.get("MotherBoard")) if projeto.get("MotherBoard") is not None else None
+        gpu = self.repository.buscar_gpu(projeto.get("GPU")) if projeto.get("GPU") is not None else None
+        ram = self.repository.buscar_ram(projeto.get("MEM_RAM")) if projeto.get("MEM_RAM") is not None else None
+        ssd = self.repository.buscar_ssd(projeto.get("SSD")) if projeto.get("SSD") is not None else None
+        power = self.repository.buscar_fonte(projeto.get("Power")) if projeto.get("Power") is not None else None
 
-        projeto_principal = Project(
-            ID=flask_session.get('project_id'), 
-            User_id=flask_session.get('user_id'), 
-            Project_Name=flask_session.get('project_name', 'Rascunho'), 
-            Description=flask_session.get('project_description', ''),
-            Mb=mb_obj,     
-            CPU=cpu_obj,   
-            GPU=gpu_obj, 
-            MEM_RAM=ram_obj, 
-            SSD=ssd_obj, 
-            Power=power_obj, 
-            Compatibility=projeto_dict.get('Compatibility', True)
-        )
+        if cpu and mb and cpu.get("CPU_Socket") != mb.get("MB_Socket"):
+            is_compatible = False
+            warnings.append(f"CPU e placa-mãe incompatíveis: CPU usa soquete {cpu.get('CPU_Socket')} e placa-mãe usa {mb.get('MB_Socket')}.")
 
-        return projeto_principal
+        if cpu and not gpu and not bool(cpu.get("Have_GPU")):
+            is_compatible = False
+            warnings.append("A CPU escolhida não possui vídeo integrado e o projeto ainda não tem GPU dedicada.")
+
+        if ram and mb:
+            if str(ram.get("RAM_type", "")).upper() != str(mb.get("Ram_type", "")).upper():
+                is_compatible = False
+                warnings.append(f"RAM incompatível: memória é {ram.get('RAM_type')} e placa-mãe suporta {mb.get('Ram_type')}.")
+            if ram.get("Capacity") and mb.get("Ram_max_cap") and ram["Capacity"] > mb["Ram_max_cap"]:
+                is_compatible = False
+                warnings.append(f"RAM ultrapassa a capacidade máxima da placa-mãe: {ram['Capacity']}GB > {mb['Ram_max_cap']}GB.")
+            if ram.get("Velocity") and mb.get("Ram_max_vel") and ram["Velocity"] > mb["Ram_max_vel"]:
+                warnings.append(f"A RAM funciona, mas será limitada a {mb['Ram_max_vel']}MHz pela placa-mãe.")
+
+        if ssd and mb:
+            formato = str(ssd.get("Format", "")).upper()
+            interface = str(ssd.get("Interface", "")).upper()
+            if formato == "M.2" and (mb.get("m2_slots") or 0) < 1:
+                is_compatible = False
+                warnings.append("SSD M.2 incompatível: placa-mãe não possui slot M.2.")
+            if interface == "SATA" and (mb.get("Sata_ports") or 0) < 1:
+                is_compatible = False
+                warnings.append("SSD SATA incompatível: placa-mãe não possui portas SATA disponíveis.")
+
+        if power:
+            consumo = 100
+            if cpu:
+                consumo += cpu.get("CPU_TDP") or 0
+            if gpu:
+                consumo += gpu.get("Tgp") or 0
+            if power.get("Pot_Watts") and power["Pot_Watts"] < consumo:
+                is_compatible = False
+                warnings.append(f"Fonte fraca: oferece {power['Pot_Watts']}W, mas o consumo estimado é {consumo}W.")
+
+            if gpu:
+                for campo, nome in [
+                    ("Pcie_8pin_Count", "PCIe 8 pinos"),
+                    ("Pcie_6pin_Count", "PCIe 6 pinos"),
+                    ("Pcie_12vhpwr_Count", "12VHPWR"),
+                ]:
+                    if (power.get(campo) or 0) < (gpu.get(campo) or 0):
+                        is_compatible = False
+                        warnings.append(f"Fonte incompatível: conectores {nome} insuficientes para a GPU.")
+
+            if ssd and str(ssd.get("Interface", "")).upper() == "SATA" and (power.get("sata_power_count") or 0) < 1:
+                is_compatible = False
+                warnings.append("Fonte incompatível: não possui conector de energia SATA para o SSD.")
+
+        return {"is_compatible": is_compatible, "warnings": warnings}
