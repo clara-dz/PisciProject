@@ -594,3 +594,98 @@ p a:hover {
         grid-template-columns: 1fr;
     }
 }
+
+.compatibility-section {
+    margin-top: 28px;
+    padding: 20px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #dcdcdc;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+#compatibility-result {
+    margin-top: 18px;
+}
+
+#compatibility-result p {
+    font-size: 1.15rem;
+    line-height: 1.5;
+}
+
+.compatibility-ok {
+    font-size: 1.25rem !important;
+    font-weight: 700;
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: #e8f7ee;
+    color: #176c35;
+    border: 1px solid #9bd8ae;
+}
+
+.compatibility-warning,
+.compatibility-error {
+    padding: 18px 20px;
+    border-radius: 12px;
+    margin-top: 12px;
+}
+
+.compatibility-warning {
+    background: #fff7df;
+    border: 1px solid #e8c86a;
+    color: #6d5200;
+}
+
+.compatibility-error {
+    background: #ffe8e8;
+    border: 1px solid #e28b8b;
+    color: #8a1f1f;
+}
+
+.compatibility-warning p,
+.compatibility-error p {
+    font-size: 1.25rem !important;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.compatibility-warning ul,
+.compatibility-error ul {
+    margin-left: 20px;
+    padding-left: 12px;
+}
+
+.compatibility-warning li,
+.compatibility-error li {
+    font-size: 1.08rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+/* Título da página Montar Projeto */
+
+.project-title-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 1rem 0 2rem 0;
+}
+
+.project-title-section h1 {
+    font-family: "Nunito", sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    color: rgb(22, 32, 43);
+    margin-bottom: 0.8rem;
+    letter-spacing: 0;
+}
+
+.project-title-section h1::after {
+    content: none;
+}
+
+.project-title-section #project-message {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-top: 0.8rem;
+}
