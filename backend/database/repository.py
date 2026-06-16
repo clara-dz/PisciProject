@@ -379,7 +379,7 @@ class UserRepository:
                 conexao.close()
 
     def insert_user(self, name, email, password):
-        query = "INSERT INTO User (Name, Email, Password) VALUES (%s, %s, %s)"
+        query = "INSERT INTO User (Username, Email, Password) VALUES (%s, %s, %s)"
 
         conexao = self.db.get_connection()
         if not conexao:
